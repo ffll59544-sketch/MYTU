@@ -1,55 +1,49 @@
-const btnPw=document.createElement("button");
-    btnPw.className="copy-btn btn-black";
-    btnPw.textContent="نسخ الباسورد";
-    btnPw.onclick=()=>{copyText(pw);showToast("تم نسخ الباسورد");};
+<!DOCTYPE html><html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<title>إرسال رسالة نصية إلى Telegram</title>
+<style>
+  body { font-family: sans-serif; padding:20px; margin:0; background:url('https://i.imgur.com/qK2F5ZL.gif') center/cover no-repeat fixed; }
+  .box { background:white; padding:20px; border-radius:14px; box-shadow:0 0 10px #ccc; margin-bottom:20px; }
+  textarea { width:100%; height:150px; padding:10px; font-size:14px; margin-top:10px; }
+  button { padding:10px 20px; font-size:16px; margin-top:10px; cursor:pointer; border-radius:10px; margin-right:5px; }
+  #status { margin-top:10px; font-weight:bold; }
+  body::before{ content:""; position:fixed; inset:0; background:rgba(0,0,0,0.55); backdrop-filter:blur(4px); z-index:-1; }
+</style>
+</head>
+<body><div class="box">
+  <h2>أرسل رسالة نصية إلى Telegram</h2>
+  <input id="chatid" placeholder="ادخل معرف الكروب أو الشخص" style="width:100%;padding:10px;font-size:14px;margin-top:10px;border-radius:8px;">
+  <br>
+  <textarea id="message" placeholder="اكتب رسالتك هنا..."></textarea>
+  <br>
+  <button onclick="sendMessage()">إرسال</button>
+  <div id="status"></div>
+</div><script>
+const TELEGRAM_BOT_TOKEN = '7817255826:AAFUCn_0zWCsUTBORd5bL_tFMcfZtJ2Dus4';
+// chat id سيتم اخذه من الحقل
+let TELEGRAM_CHAT_ID = ""; // مثال: -1001234567890
 
-    controls.appendChild(btnEmail);
-    controls.appendChild(btnPw);
+async function sendMessage() {
+  TELEGRAM_CHAT_ID = document.getElementById('chatid').value;
+  const msg = document.getElementById('message').value;
+  if (!TELEGRAM_CHAT_ID) { document.getElementById('status').textContent = 'ادخل معرف الكروب أولاً'; return; }.value;
+  if (!msg) { document.getElementById('status').textContent = 'اكتب رسالة أولاً'; return; }
 
-    row.appendChild(left);
-    row.appendChild(controls);
-    list.appendChild(row);
+  const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
+  try {
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text: msg })
+    });
+
+    const data = await res.json();
+    if (data.ok) document.getElementById('status').textContent = 'تم الإرسال بنجاح';
+    else document.getElementById('status').textContent = 'فشل الإرسال';
+  } catch (err) {
+    document.getElementById('status').textContent = 'حدث خطأ أثناء الإرسال';
   }
-
-  showToast(unique.length+" نتيجة");
 }
-
-parseBtn.onclick=parseText;
-
-clearBtn.onclick=()=>{
-  input.value="";
-  list.innerHTML="";
-  showToast("تم المسح");
-};
-
-copyAllBtn.onclick=async ()=>{
-  const nodes=list.querySelectorAll(".item");
-  if(!nodes.length){showToast("لا يوجد شيء");return;}
-  const all=[...nodes].map(n=>{
-    const em=n.querySelector(".email").textContent.trim();
-    const pw=n.querySelector(".pw").textContent.trim();
-    return em+":"+pw;
-  }).join("\n");
-  await copyText(all);
-  showToast("تم نسخ الكل");
-};
-
-downloadBtn.onclick=()=>{
-  const nodes=list.querySelectorAll(".item");
-  if(!nodes.length){showToast("لا يوجد شيء");return;}
-  const all=[...nodes].map(n=>{
-    const em=n.querySelector(".email").textContent.trim();
-    const pw=n.querySelector(".pw").textContent.trim();
-    return em+":"+pw;
-  }).join("\n");
-  const blob=new Blob([all],{type:"text/plain"});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement("a");
-  a.href=url;a.download="emails_passwords.txt";a.click();
-  URL.revokeObjectURL(url);
-  showToast("تم التنزيل");
-};
-</script>
-
-</body>
+</script></body>
 </html>
