@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>تسجيل الدخول - أداة MAX</title>
+
+<style>
+  /* ------------------------- ستايلات الدخول ------------------------- */
+  body{
+    margin:0;
+    font-family:system-ui,-apple-system,Segoe UI,Roboto,'Helvetica Neue',Arial;
+    background:url("https://i.imgur.com/W29v6Kz.jpeg") center/cover no-repeat fixed;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    min-height:100vh;
+  }
+
+  body::before{
+    content:"";
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,0.7); /* سويناها أغمق حتى الكلام يبين */
+    backdrop-filter:blur(6px);
+    z-index:-1;
+  }
+
+  :root{
+    --card:#ffffffee;
+    --accent:#e60000;
+    --grad:linear-gradient(135deg,#e60000,#8b0000);
+  }
+
+  /* ستايل صفحة الدخول نفسها */
+  #login-page {
+    background: var(--card);
+    border-radius: 14px;
+    padding: 25px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.6);
+    width: 350px;
+    text-align: center;
+  }
+
+  #login-page h2 {
+    color: #111;
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-size: 24px;
+    font-weight: 700;
+    border-bottom: 3px solid var(--accent);
+    padding-bottom: 10px;
+  }
+
+  #code-input {
+    width: 90%;
+    padding: 12px;
+    margin-bottom: 15px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 16px;
+    text-align: center;
+    font-weight: bold;
+    /* تأكد من أن خط الباسورد مناسب */
+    font-family: monospace; 
+    text-transform: uppercase;
+  }
+
+  #submit-btn {
+    width: 96%;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    background: var(--grad);
+    color: #fff;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.3s;
+    box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+  }
+
+  #submit-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 15px rgba(255, 0, 0, 0.8);
+  }
+
+  #error-msg {
+    color: var(--accent);
+    margin-top: 10px;
+    font-weight: 600;
+    min-height: 20px;
+  }
+
+  /* ------------------------- ستايلات الأداة (الصفحة الداخلية) ------------------------- */
+
+  .wrap{max-width:760px;margin:18px auto;padding:12px}
+  .card{
+    background:var(--card);
+    border-radius:14px;
+    padding:14px;
+    box-shadow:0 6px 16px rgba(0,0,0,0.4)
+  }
+
+  h1{
+    margin:6px 0 12px;
+    font-size:22px;
+    text-align:center;
+    color:#111;
+    font-weight:700;
+  }
+
+  textarea{
+    width:100%;
+    min-height:160px;
+    padding:12px;
+    font-size:14px;
+    border-radius:10px;
+    border:1px solid #ccc;
+    resize:vertical;
+  }
+
+  .row{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+
+  button{
+    border:none;
+    cursor:pointer;
+    padding:10px 14px;
+    border-radius:10px;
+    font-size:14px;
+    transition:.2s;
+    font-weight:600;
+  }
+
+  .btn-red{
+    background:var(--grad);
+    color:#fff;
+    box-shadow:0 0 8px rgba(255,0,0,0.5);
+  }
+  .btn-red:hover{
+    transform:translateY(-2px);
+    box-shadow:0 0 12px rgba(255,0,0,0.8);
+  }
+
+  .btn-black{
+    background:#111;
+    color:#fff;
+    border:2px solid #444;
+  }
+  .btn-black:hover{
+    transform:translateY(-2px);
+    box-shadow:0 0 8px rgba(0,0,0,0.6);
+  }
+
+  .list{margin-top:12px;display:flex;flex-direction:column;gap:10px}
+  .item{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:12px;
+    border-radius:12px;
+    border:1px solid #ddd;
+    background:#fff;
+    box-shadow:0 2px 8px rgba(0,0,0,0.15);
+  }
+
+  .left{
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+    flex:1;
+    overflow:hidden;
+  }
+
+  .email{
+    font-weight:700;
+    color:#e60000;
+    font-size:15px;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+
+  .pw{
+    font-size:13px;
+    color:#444;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+
+  .controls{
+    display:flex;
+    gap:6px;
+  }
+
+  .copy-btn{
+    padding:7px 10px;
+    border-radius:8px;
+    font-size:13px;
+  }
+
+  .toast{
+    position:fixed;
+    left:50%;
+    transform:translateX(-50%);
+    bottom:26px;
+    background:#111;
+    color:#fff;
+    padding:10px 14px;
+    border-radius:10px;
+    opacity:0;
+    pointer-events:none;
+    transition:opacity .25s;
+    z-index: 1000;
+  }
+  .toast.show{opacity:1;}
+
+  .footer{
+    text-align:center;
+    color:#fff;
+    margin-top:14px;
+    font-size:14px;
+    text-shadow:0 0 5px #000;
+  }
+
+  /* ------------------------- قسم الروابط ------------------------- */
+
+  .links-box{
+    margin-top:18px;
+    background:#ffffffee;
+    padding:16px;
+    border-radius:14px;
+    box-shadow:0 4px 14px rgba(0,0,0,0.35);
+  }
+
+  .link-item{
+    padding:12px;
+    border-bottom:1px solid #ddd;
+  }
+  .link-item:last-child{
+    border-bottom:none;
+  }
+
+  .link-title{
+    font-size:17px;
+    font-weight:700;
+    color:#e60000;
+  }
+  .link-desc{
+    font-size:13px;
+    color:#444;
+    margin:4px 0 8px;
+  }
+
+  /* ***** زر الروابط Premium ****** */
+  .premium-btn{
+    display:block;
+    width:100%;
+    padding:10px;
+    background:linear-gradient(135deg,#111,#2a0000);
+    border:2px solid #e60000;
+    color:#fff;
+    text-align:center;
+    border-radius:10px;
+    text-decoration:none;
+    font-weight:700;
+    box-shadow:0 0 10px rgba(255,0,0,0.5);
+    transition:.2s;
+  }
+  .premium-btn:hover{
+    transform:scale(1.04);
+    box-shadow:0 0 16px rgba(255,0,0,0.8);
+  }
+
+  /* إخفاء الصفحات */
+  .hidden { display: none !important; }
+
+</style>
+</head>
+
+<body>
+
+<div id="login-page">
+    <h2>🔒 أدخل رمز الدخول</h2>
+    <input type="password" id="code-input" placeholder="أدخل الرمز السري" maxlength="4" />
+    <button id="submit-btn">الدخول إلى الأداة</button>
+    <div id="error-msg"></div>
+</div>
+
+<div class="wrap hidden" id="tool-page">
+
+  <div class="card">
+    <h1>🔥 أداة مدفوعة — استخراج Email:Password</h1>
+    <div style="text-align:center;color:#222;font-size:13px;margin-bottom:8px">
+      ألصق النص، والأداة تستخرج فقط: <b>email:password</b>
+    </div>
+
+    <textarea id="input" placeholder="ألصق النص هنا..."></textarea>
+
+    <div class="row">
+      <button id="parseBtn" class="btn-red">استخراج</button>
+      <button id="clearBtn" class="btn-black">مسح</button>
+      <button id="copyAllBtn" class="btn-black">نسخ الكل</button>
+      <button id="downloadBtn" class="btn-black">تنزيل txt</button>
+    </div>
+
+    <div class="list" id="list"></div>
+  </div>
+
+  <div class="links-box">
+
+    <h1 style="font-size:22px;margin-bottom:14px;color:#fff;text-align:center;
+               background:var(--grad);padding:12px;border-radius:12px;
+               box-shadow:0 0 12px rgba(255,0,0,0.7);">
+      ⭐ روابط مهمة ⭐
+    </h1>
+
+    <div class="link-item">
+      <div class="link-title">تسجيل دخول مايكروسوفت</div>
+      <div class="link-desc">الصفحة الرسمية لتسجيل الدخول لحساب Microsoft.</div>
+      <a class="premium-btn" href="https://login.live.com" target="_blank">فتح الرابط</a>
+    </div>
+
+    <div class="link-item">
+      <div class="link-title">تسجيل دخول Xbox</div>
+      <div class="link-desc">تسجيل الدخول لحساب Xbox عبر مايكروسوفت.</div>
+      <a class="premium-btn" href="https://www.xbox.com/signin" target="_blank">فتح الرابط</a>
+    </div>
+
+    <div class="link-item">
+      <div class="link-title">تسجيل دخول عبر الكود</div>
+      <div class="link-desc">استخدم الكود الظاهر على جهاز Xbox للتسجيل.</div>
+      <a class="premium-btn" href="https://www.microsoft.com/link" target="_blank">فتح الرابط</a>
+    </div>
+
+    <div class="link-item">
+      <div class="link-title">سجل الشراء مايكروسوفت</div>
+      <div class="link-desc">عرض مشترياتك السابقة من حساب Microsoft.</div>
+      <a class="premium-btn" href="https://account.microsoft.com/billing/orders" target="_blank">فتح الرابط</a>
+    </div>
+    
+    <div class="link-item">
+      <div class="link-title">طرق الدفع مايكروسوفت</div>
+      <div class="link-desc">إدارة بطاقات الائتمان وحسابات PayPal وطرق الدفع الأخرى.</div>
+      <a class="premium-btn" href="https://account.microsoft.com/billing/payments" target="_blank">فتح الرابط</a>
+    </div>
+    
+    <div class="link-item">
+      <div class="link-title">تسجيل خروج مايكروسوفت</div>
+      <div class="link-desc">تسجيل الخروج من كل خدمات وحسابات Microsoft النشطة.</div>
+      <a class="premium-btn" href="https://login.live.com/oauth20_logout.srf" target="_blank">فتح الرابط</a>
+    </div>
+
+    <div class="link-item">
+      <div class="link-title">معلومات حساب مايكروسوفت</div>
+      <div class="link-desc">الأجهزة، كلمات المرور، الإعدادات والحماية.</div>
+      <a class="premium-btn" href="https://account.microsoft.com" target="_blank">فتح الرابط</a>
+    </div>
+
+  </div>
+
+  <div class="footer">حقوق © Telegram: <b>@xgbox7</b></div>
+
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+// الكود الخاص بالدخول
+const CORRECT_CODE = "MAX";
+const loginPage = document.getElementById("login-page");
+const toolPage = document.getElementById("tool-page");
+const codeInput = document.getElementById("code-input");
+const submitBtn = document.getElementById("submit-btn");
+const errorMsg = document.getElementById("error-msg");
+
+submitBtn.onclick = checkLogin;
+codeInput.onkeypress = function(e) {
+    if (e.key === "Enter") {
+        checkLogin();
+    }
+};
+
+function checkLogin() {
+    // خليناها تقرأ القيمة من الـ password وتظل تحولها أحرف كبيرة حتى تتأكد من الرمز MAX
+    const enteredCode = codeInput.value.trim().toUpperCase(); 
+    if (enteredCode === CORRECT_CODE) {
+        // إذا كان الرمز صحيحاً
+        loginPage.classList.add("hidden");
+        toolPage.classList.remove("hidden");
+        // نحتاج نغير ستايل body حتى الأداة تكون بالمنتصف
+        document.body.style.display = 'block'; 
+        document.body.style.minHeight = 'auto';
+    } else {
+        // إذا كان الرمز خطأ
+        errorMsg.textContent = "رمز الدخول غلط! تأكد من الأحرف الكبيرة.";
+        codeInput.value = "";
+    }
+}
+
+
+// الكود الخاص بالأداة (من الكود القديم)
+const emailPwRegex=/([A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,})\s*[:\- ]\s*([^\s]+)/g;
+
+const input=document.getElementById("input");
+const parseBtn=document.getElementById("parseBtn");
+const list=document.getElementById("list");
+const toast=document.getElementById("toast");
+const clearBtn=document.getElementById("clearBtn");
+const copyAllBtn=document.getElementById("copyAllBtn");
+const downloadBtn=document.getElementById("downloadBtn");
+
+function showToast(txt){
+  toast.textContent=txt;
+  toast.classList.add("show");
+  clearTimeout(toast._t);
+  toast._t=setTimeout(()=>toast.classList.remove("show"),1500);
+}
+
+async function copyText(s){
+  try{await navigator.clipboard.writeText(s);}
+  catch{
+    const t=document.createElement("textarea");
+    t.value=s;document.body.appendChild(t);
+    t.select();document.execCommand("copy");
+    t.remove();
+  }
+}
+
+function parseText(){
+  const text=input.value.trim();
+  list.innerHTML="";
+  if(!text){showToast("لا يوجد نص");return;}
+
+  let m,pairs=[];
+  while((m=emailPwRegex.exec(text))!==null){
+    pairs.push([m[1],m[2]]);
+  }
+
+  if(pairs.length===0){showToast("ماكو نتائج");return;}
+
+  const seen=new Set(),unique=[];
+  for(const p of pairs){
+    const key=p[0]+":"+p[1];
+    if(!seen.has(key)){seen.add(key);unique.push(p);}
+  }
+
+  for(const [em,pw] of unique){
+    const row=document.createElement("div");
+    row.className="item";
+
+    const left=document.createElement("div");
+    left.className="left";
+
+    const e=document.createElement("div");
+    e.className="email";
+    e.textContent=em;
+
+    const p=document.createElement("div");
+    p.className="pw";
+    p.textContent=pw;
+
+    left.appendChild(e);
+    left.appendChild(p);
+
+    const controls=document.createElement("div");
+    controls.className="controls";
+
+    const btnEmail=document.createElement("button");
+    btnEmail.className="copy-btn btn-red";
+    btnEmail.textContent="نسخ الإيميل";
+    btnEmail.onclick=()=>{copyText(em);showToast("تم نسخ الإيميل");};
+
+    const btnPw=document.createElement("button");
+    btnPw.className="copy-btn btn-black";
+    btnPw.textContent="نسخ الباسورد";
+    btnPw.onclick=()=>{copyText(pw);showToast("تم نسخ الباسورد");};
+
+    controls.appendChild(btnEmail);
+    controls.appendChild(btnPw);
+
+    row.appendChild(left);
+    row.appendChild(controls);
+    list.appendChild(row);
+  }
+
+  showToast(unique.length+" نتيجة");
+}
+
+parseBtn.onclick=parseText;
+
+clearBtn.onclick=()=>{
+  input.value="";
+  list.innerHTML="";
+  showToast("تم المسح");
+};
+
+copyAllBtn.onclick=async ()=>{
+  const nodes=list.querySelectorAll(".item");
+  if(!nodes.length){showToast("لا يوجد شيء");return;}
+  const all=[...nodes].map(n=>{
+    const em=n.querySelector(".email").textContent.trim();
+    const pw=n.querySelector(".pw").textContent.trim();
+    return em+":"+pw;
+  }).join("\n");
+  await copyText(all);
+  showToast("تم نسخ الكل");
+};
+
+downloadBtn.onclick=()=>{
+  const nodes=list.querySelectorAll(".item");
+  if(!nodes.length){showToast("لا يوجد شيء");return;}
+  const all=[...nodes].map(n=>{
+    const em=n.querySelector(".email").textContent.trim();
+    const pw=n.querySelector(".pw").textContent.trim();
+    return em+":"+pw;
+  }).join("\n");
+  const blob=new Blob([all],{type:"text/plain"});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");
+  a.href=url;a.download="emails_passwords.txt";a.click();
+  URL.revokeObjectURL(url);
+  showToast("تم التنزيل");
+};
+</script>
+
+</body>
+</html>
