@@ -3,31 +3,76 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>تسجيل الدخول - أداة MAX</title>
+    <title>أداة MAX: استخراج Email:Password</title>
     <style>
-        /* تم تعديل الخلفية إلى لون أسود ثابت ومريح للعين */
-        body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,'Helvetica Neue',Arial;background:#111;display:flex;justify-content:center;align-items:center;min-height:100vh}
+        /* ------------------------- ستايل الجسم الأساسي ------------------------- */
+        /* تم إزالة Flexbox لتمكين التمرير (Scrolling) ووضع محتوى الصفحة بشكل طبيعي */
+        body{
+            margin:0;
+            font-family:system-ui,-apple-system,Segoe UI,Roboto,'Helvetica Neue',Arial;
+            background:#111;
+            padding-top:20px; /* إضافة مساحة علوية */
+            padding-bottom:50px; /* إضافة مساحة سفلية لراحة العين */
+        }
+        
         /* إزالة الفلتر الخلفي لأن الخلفية صارت سوداء صلبة */
         body::before{content:"";position:fixed;inset:0;background:rgba(0,0,0,0.85);backdrop-filter:blur(6px);z-index:-1}
         
-        :root{--card:#ffffffee;--accent:#e60000;--grad:linear-gradient(135deg,#e60000,#8b0000);--dark-grad:linear-gradient(135deg,#111,#2a0000)}#login-page{background:var(--card);border-radius:18px;padding:30px;box-shadow:0 10px 30px rgba(0,0,0,0.7);width:350px;text-align:center;border:3px solid var(--accent)}#login-page h2{color:#111;margin-top:0;margin-bottom:25px;font-size:26px;font-weight:800;border-bottom:4px solid var(--accent);padding-bottom:12px;text-shadow:1px 1px 1px rgba(0,0,0,0.1)}#code-input{width:90%;padding:14px;margin-bottom:20px;border-radius:10px;border:2px solid #aaa;font-size:18px;text-align:center;font-weight:bold;font-family:monospace;text-transform:uppercase;transition:border-color .3s}#code-input:focus{border-color:var(--accent);outline:none}#submit-btn{width:96%;padding:14px;border:none;border-radius:10px;background:var(--grad);color:#fff;font-size:18px;font-weight:800;cursor:pointer;transition:.3s;box-shadow:0 4px 15px rgba(255,0,0,0.6)}#submit-btn:hover{transform:translateY(-3px);box-shadow:0 6px 20px rgba(255,0,0,1)}#error-msg{color:var(--accent);margin-top:15px;font-weight:700;min-height:20px}.wrap{max-width:850px;margin:20px auto;padding:15px}.card{background:var(--card);border-radius:18px;padding:20px;box-shadow:0 8px 20px rgba(0,0,0,0.5);margin-bottom:20px}h1{margin:6px 0 16px;font-size:26px;text-align:center;color:#111;font-weight:800}textarea{width:100%;min-height:180px;padding:15px;font-size:15px;border-radius:12px;border:2px solid #ccc;resize:vertical}.row{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap;justify-content:center}button{border:none;cursor:pointer;padding:12px 18px;border-radius:12px;font-size:15px;transition:.3s;font-weight:700}.btn-red{background:var(--grad);color:#fff;box-shadow:0 0 10px rgba(255,0,0,0.7)}.btn-red:hover{transform:translateY(-3px);box-shadow:0 0 18px rgba(255,0,0,1)}.btn-black{background:var(--dark-grad);color:#fff;border:2px solid #444}.btn-black:hover{transform:translateY(-3px);box-shadow:0 0 10px rgba(0,0,0,0.8)}.list{margin-top:15px;display:flex;flex-direction:column;gap:12px}.item{display:flex;justify-content:space-between;align-items:center;padding:15px;border-bottom:1px solid #ddd;background:#fff;box-shadow:0 4px 10px rgba(0,0,0,0.2)}.item:last-child{border-bottom:none;}.left{display:flex;flex-direction:column;gap:8px;flex:1;overflow:hidden}
+        /* ------------------------- المتغيرات والألوان ------------------------- */
+        :root{
+            --card:#ffffffee;
+            --accent:#e60000;
+            --grad:linear-gradient(135deg,#e60000,#8b0000);
+            --dark-grad:linear-gradient(135deg,#111,#2a0000);
+            --success-color: #7CFC00; /* اللون الأخضر الجديد */
+            --success-shadow: rgba(124, 252, 0, 0.8);
+        }
         
-        /* *** الستايل اللي يغير لون الإيميل *** */
-        .email{font-weight:800;color:#b30000;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; transition: color 0.3s, font-size 0.3s;}
-        .email.copied {color: #ff0000; font-size: 17px; font-weight: 900; text-shadow: 0 0 5px rgba(255,0,0,0.5);} 
-        /* ------------------------------------ */
+        /* تم حذف ستايلات تسجيل الدخول (#login-page و #code-input... إلخ) */
 
-        .pw{font-size:14px;color:#444;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.controls{display:flex;gap:8px;flex-shrink:0}.copy-btn{padding:8px 12px;border-radius:10px;font-size:13px;font-weight:600}.copy-btn.btn-black{background:#222}.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:30px;background:#111;color:#fff;padding:12px 18px;border-radius:12px;opacity:0;pointer-events:none;transition:opacity .3s,bottom .3s;z-index:1000;font-weight:600}.toast.show{opacity:1;bottom:40px}.footer{text-align:center;color:#fff;margin-top:20px;font-size:15px;font-weight:500;text-shadow:0 0 8px #000}.links-box{margin-top:20px;background:#ffffffee;padding:20px;border-radius:18px;box-shadow:0 6px 18px rgba(0,0,0,0.45);border:1px solid #eee}.links-box .title-header{font-size:24px;margin-bottom:18px;color:#fff;text-align:center;background:var(--grad);padding:15px;border-radius:15px;box-shadow:0 0 15px rgba(255,0,0,0.8);font-weight:800;border:2px solid #fff}.link-item{padding:15px;border-bottom:1px solid #ddd;display:flex;flex-direction:column}.link-item:last-child{border-bottom:none}.link-title{font-size:18px;font-weight:800;color:#b30000}.link-desc{font-size:14px;color:#555;margin:6px 0 10px}.premium-btn{display:block;width:100%;padding:12px;background:var(--dark-grad);border:2px solid var(--accent);color:#fff;text-align:center;border-radius:10px;text-decoration:none;font-weight:800;box-shadow:0 0 12px rgba(255,0,0,0.6);transition:.3s}.premium-btn:hover{transform:scale(1.03);box-shadow:0 0 20px rgba(255,0,0,1);background:var(--dark-grad)}.hidden{display:none!important}</style>
+        /* ------------------------- ستايل الأداة ------------------------- */
+        .wrap{max-width:850px;margin:20px auto;padding:15px}
+        .card{background:var(--card);border-radius:18px;padding:20px;box-shadow:0 8px 20px rgba(0,0,0,0.5);margin-bottom:20px}
+        h1{margin:6px 0 16px;font-size:26px;text-align:center;color:#111;font-weight:800}
+        textarea{width:100%;min-height:180px;padding:15px;font-size:15px;border-radius:12px;border:2px solid #ccc;resize:vertical}
+        .row{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap;justify-content:center}
+        button{border:none;cursor:pointer;padding:12px 18px;border-radius:12px;font-size:15px;transition:.3s;font-weight:700}
+        .btn-red{background:var(--grad);color:#fff;box-shadow:0 0 10px rgba(255,0,0,0.7)}.btn-red:hover{transform:translateY(-3px);box-shadow:0 0 18px rgba(255,0,0,1)}
+        .btn-black{background:var(--dark-grad);color:#fff;border:2px solid #444}.btn-black:hover{transform:translateY(-3px);box-shadow:0 0 10px rgba(0,0,0,0.8)}
+        .list{margin-top:15px;display:flex;flex-direction:column;gap:12px}
+        .item{display:flex;justify-content:space-between;align-items:center;padding:15px;border-bottom:1px solid #ddd;background:#fff;box-shadow:0 4px 10px rgba(0,0,0,0.2)}.item:last-child{border-bottom:none;}
+        .left{display:flex;flex-direction:column;gap:8px;flex:1;overflow:hidden}
+        
+        /* ------------------------- ستايل الإيميل والتظليل الجديد ------------------------- */
+        .email{font-weight:800;color:#b30000;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; transition: color 0.3s, font-size 0.3s;}
+        
+        /* *** اللون الأخضر الليموني للتظليل الثابت *** */
+        .email.copied {color: var(--success-color); font-size: 17px; font-weight: 900; text-shadow: 0 0 5px var(--success-shadow);} 
+        
+        .pw{font-size:14px;color:#444;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+        .controls{display:flex;gap:8px;flex-shrink:0}
+        .copy-btn{padding:8px 12px;border-radius:10px;font-size:13px;font-weight:600}
+        .copy-btn.btn-black{background:#222}
+        
+        /* ------------------------- التوست (رسالة التنبيه) ------------------------- */
+        .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:30px;background:#111;color:#fff;padding:12px 18px;border-radius:12px;opacity:0;pointer-events:none;transition:opacity .3s,bottom .3s;z-index:1000;font-weight:600}
+        .toast.show{opacity:1;bottom:40px}
+
+        /* ------------------------- الروابط والفوتر ------------------------- */
+        .footer{text-align:center;color:#fff;margin-top:20px;font-size:15px;font-weight:500;text-shadow:0 0 8px #000}
+        .links-box{margin-top:20px;background:#ffffffee;padding:20px;border-radius:18px;box-shadow:0 6px 18px rgba(0,0,0,0.45);border:1px solid #eee}
+        .links-box .title-header{font-size:24px;margin-bottom:18px;color:#fff;text-align:center;background:var(--grad);padding:15px;border-radius:15px;box-shadow:0 0 15px rgba(255,0,0,0.8);font-weight:800;border:2px solid #fff}
+        .link-item{padding:15px;border-bottom:1px solid #ddd;display:flex;flex-direction:column}.link-item:last-child{border-bottom:none}
+        .link-title{font-size:18px;font-weight:800;color:#b30000}
+        .link-desc{font-size:14px;color:#555;margin:6px 0 10px}
+        .premium-btn{display:block;width:100%;padding:12px;background:var(--dark-grad);border:2px solid var(--accent);color:#fff;text-align:center;border-radius:10px;text-decoration:none;font-weight:800;box-shadow:0 0 12px rgba(255,0,0,0.6);transition:.3s}
+        .premium-btn:hover{transform:scale(1.03);box-shadow:0 0 20px rgba(255,0,0,1);background:var(--dark-grad)}
+        .hidden{display:none!important}
+    </style>
 </head>
 <body>
-<div id="login-page">
-    <h2>🔒 أدخل رمز الدخول السري</h2>
-    <input type="password" id="code-input" placeholder="أدخل الرمز السري" maxlength="4" />
-    <button id="submit-btn">الدخول إلى الأداة 🔥</button>
-    <div id="error-msg"></div>
-</div>
 
-<div class="wrap hidden" id="tool-page">
+<div class="wrap" id="tool-page">
     <div class="card">
         <h1>🔥 أداة MAX: استخراج Email:Password</h1>
         <div style="text-align:center;color:#444;font-size:14px;margin-bottom:12px;font-weight:500;">ألصق النص، والأداة تستخرج فقط: <b style="color:var(--accent);">email:password</b></div>
@@ -130,23 +175,13 @@
     // ** كود الأداة الأصلي             **
     // **********************************************
 
-    const CORRECT_CODE="MAX",loginPage=document.getElementById("login-page"),toolPage=document.getElementById("tool-page"),codeInput=document.getElementById("code-input"),submitBtn=document.getElementById("submit-btn"),errorMsg=document.getElementById("error-msg");
-
-    function showToolPage(){
-        loginPage.classList.add("hidden"),toolPage.classList.remove("hidden"),document.body.style.display="block",document.body.style.minHeight="auto"
-    }
-
-    function checkLogin(){
-        const e=codeInput.value.trim().toUpperCase();
-        "MAX"===e?(errorMsg.textContent="",showToolPage()):(errorMsg.textContent="رمز الدخول غلط! تأكد من الأحرف الكبيرة: MAX",codeInput.value="")
-    }
-
-    submitBtn.onclick=checkLogin,codeInput.onkeypress=function(e){"Enter"===e.key&&checkLogin()};
+    // تم حذف كل الأكواد المتعلقة بتسجيل الدخول: CORRECT_CODE, loginPage, toolPage, checkLogin... إلخ.
 
     const emailPwRegex=/([A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,})\s*[:\- ]\s*([^\s]+)/g,input=document.getElementById("input"),parseBtn=document.getElementById("parseBtn"),list=document.getElementById("list"),toast=document.getElementById("toast"),clearBtn=document.getElementById("clearBtn"),copyAllBtn=document.getElementById("copyAllBtn"),downloadBtn=document.getElementById("downloadBtn");
 
     function showToast(e){
-        toast.textContent=e,toast.classList.add("show"),clearTimeout(toast._t),toast._t=setTimeout(()=>toast.classList.remove("show"),2e3)
+        // تم تقليل وقت التوست إلى 1.5 ثانية
+        toast.textContent=e,toast.classList.add("show"),clearTimeout(toast._t),toast._t=setTimeout(()=>toast.classList.remove("show"),1500)
     }
 
     async function copyText(e){
@@ -158,14 +193,13 @@
         }
     }
     
-    // *** التعديل اللي يخلي اللون ثابت وما يختفي ***
+    // دالة النسخ مع تظليل الإيميل الدائم
     async function copyTextWithHighlight(text, elementToHighlight = null) {
         let success = await copyText(text);
 
         if (success && elementToHighlight) {
-            // إضافة كلاس التظليل (اللون الأحمر)
+            // إضافة كلاس التظليل (اللون الأخضر) بشكل دائم
             elementToHighlight.classList.add('copied');
-            // *** تمت إزالة الـ setTimeout لضمان بقاء اللون الأحمر ***
         }
         return success;
     }
@@ -213,14 +247,15 @@
             const s=document.createElement("div");
             s.className="controls";
             
-            // *** استخدام الدالة المعدلة لتثبيت اللون الأحمر على الإيميل (r) ***
+            // *** استخدام الدالة المعدلة لتثبيت اللون الأخضر على الإيميل (r) ورسالة "تم النسخ بنجاح" ***
             const d=document.createElement("button");
             d.className="copy-btn btn-red",d.textContent="نسخ الإيميل",d.onclick=async()=>{
-                await copyTextWithHighlight(e, r) && showToast("تم نسخ الإيميل")
+                await copyTextWithHighlight(e, r) && showToast("تم النسخ بنجاح")
             };
             
+            // *** رسالة "تم النسخ بنجاح" للباسورد ***
             const a=document.createElement("button");
-            a.className="copy-btn btn-black",a.textContent="نسخ الباسورد",a.onclick=async()=>{await copyText(t)&&showToast("تم نسخ الباسورد")};
+            a.className="copy-btn btn-black",a.textContent="نسخ الباسورد",a.onclick=async()=>{await copyText(t)&&showToast("تم النسخ بنجاح")};
             
             s.appendChild(d),s.appendChild(a),o.appendChild(n),o.appendChild(s),list.appendChild(o)
         }
@@ -231,7 +266,7 @@
         const e=list.querySelectorAll(".item");
         if(!e.length)return void showToast("لا توجد نتائج لنسخها");
         const t=[...e].map(e=>{const t=e.querySelector(".email").textContent.trim(),o=e.querySelector(".pw").textContent.trim();return t+":"+o}).join("\n");
-        await copyText(t)&&showToast("تم نسخ كل النتائج")
+        await copyText(t)&&showToast("تم النسخ بنجاح")
     },downloadBtn.onclick=()=>{
         const e=list.querySelectorAll(".item");
         if(!e.length)return void showToast("لا توجد نتائج للتنزيل");
