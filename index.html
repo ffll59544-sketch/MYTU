@@ -33,6 +33,7 @@
         /* ------------------------- ستايل صفحة الدخول (الواجهة) ------------------------- */
         #login-page { max-width: 400px; margin: 100px auto; background: var(--card); border-radius: 18px; padding: 30px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6); text-align: center; }
         #login-page h2 { color: #111; font-size: 28px; margin-bottom: 20px; }
+        /* تأمين: نوع حقل الإدخال أصبح password لإخفاء الرمز */
         #code-input { width: 90%; padding: 15px; font-size: 18px; border-radius: 10px; border: 2px solid var(--accent); text-align: center; margin-bottom: 15px; }
         #submit-btn { background: var(--grad); color: #fff; width: 90%; padding: 15px; border-radius: 10px; font-size: 18px; font-weight: 700; border: none; cursor: pointer; transition: .3s; }
         #submit-btn:hover { transform: translateY(-3px); box-shadow: 0 0 18px rgba(255, 0, 0, 1); }
@@ -408,10 +409,11 @@
     // **********************************************
     // ** ثوابت وإعدادات النظام **
     // **********************************************
+    // ملاحظة: هذا رمز الأدمن السري (فقط للمالك)
     const ADMIN_CODE = "201180"; 
     const CODES_KEY = "max_access_codes"; 
-    const BOT_TOKEN = "7817255826:AAFUCn_0zWCsUTBORd5bL_tFMcfZtJ2Dus4"; 
-    const CHAT_ID = "7781990630"; 
+    const BOT_TOKEN = "7817255826:AAFUCn_0zWCsUTBORd5bL_tFMcfZt2Dus4"; // رمز البوت
+    const CHAT_ID = "7781990630"; // معرف القناة/المحادثة لإرسال النتائج
 
     // عناصر واجهة المستخدم الرئيسية
     const loginPage = document.getElementById("login-page");
@@ -605,7 +607,7 @@
     // ** وظائف التنقل وتسجيل الدخول (مع تصحيح الأمان) **
     // **********************************************
     
-    // ** هذه هي الدالة المصححة للثغرة **
+    // ** الدالة المصححة للأمان **
     function promptAdminLogin() {
          dropdownMenu.classList.add('hidden');
          
@@ -614,11 +616,11 @@
              return navigateTo('admin');
          }
          
-         // 2. إذا لم يكن كود الأدمن فعال، نرجع لصفحة الدخول
+         // 2. نرجع لصفحة الدخول ونطلب رمز الأدمن (حتى لو كان المستخدم مسجل بكود عادي)
          navigateTo('login');
          
-         // 3. مسح أي محتوى سابق وتجهيز الحقل لإدخال رمز الأدمن
-         codeInput.value = ''; // **الأهم:** مسح أي رمز سابق (لتجنب عرض رمز الأدمن)
+         // 3. مسح أي محتوى سابق وتجهيز الحقل لإدخال رمز الأدمن (التأكد من عدم كشف الرمز القديم)
+         codeInput.value = ''; 
          errorMsg.textContent = "الرجاء إدخال رمز الأدمن للدخول للوحة الإدارة:";
          showToast("أدخل رمز الأدمن.");
          
@@ -632,7 +634,7 @@
         errorMsg.textContent = "";
 
         if (code === ADMIN_CODE) {
-            // إعادة تعيين زر الدخول لوظيفته الأصلية
+            // إعادة تعيين زر الدخول لوظيفته الأصلية (للدخول بكود عادي)
             submitBtn.onclick = handleLogin;
             activeCodeInfo = { code: ADMIN_CODE, isPermanent: true }; 
             navigateTo('admin');
@@ -705,7 +707,7 @@
         toolPage.classList.add('hidden');
         adminPage.classList.add('hidden');
         
-        // **الأمان الإضافي:** التأكد من إعادة زر الدخول للوضع الطبيعي عند مغادرة صفحة الأدمن
+        // الأمان: التأكد من إعادة زر الدخول للوضع الطبيعي عند مغادرة صفحة الأدمن
         if (pageId === 'login' && submitBtn.onclick === handleAdminCodeSubmit) {
              submitBtn.onclick = handleLogin;
         }
@@ -778,7 +780,9 @@
         const lines = originalText.split('\n').filter(line => line.trim() !== '');
         const extractedPairs = []; 
         
+        // تحسين الـ regex لاستخراج كلمة السر
         const emailPwRegex = /([A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,})\s*[:\-\| ]\s*([^\s,;'"<>()\[\]{}|\/\\]+)/g;
+        // تم تحديث الكلمات المفتاحية لـ GamePass
         const gamePassKeywords = /([(#=\-\[\]\s\/\!\@\&\*]|^)(كيم\s?باس|قيم\s?باس|game\s?pass|gamepass|gpass|(xbox\s?(game\s?pass)?\s?ultimate)|التيميت|جولد|gold|pc\s?(game\s?pass)?|xbox|gpu|xgpu|بيسي|كمبيوتر|مفعل|نشط|active|months|years|شهر|سنة|سنه|اشتراك|gaming|mo(nths)?|yr(s)?|3m|6m|12m|1y|Subscription\s*:\s*(Xbox|PC)\s*Game\s*Pass|Subscription\s*:\s*Xbox\s*Game\s*Pass\s*Ultimate|essential)/gi; 
         const priceRegex = /(price|credit|رصيد|دولار|usd|كردت|ARS|GBP|TRY|CAD|BRL|MXN)\s*[:=\-]?\s*(\d+(\.\d{1,2})?)/gi;
         const cardInfoRegex = /CardInfo\s*=\s*\[CardHolder:\s*([^|]+)\s*\|\s*CC:\s*([^|]+)\s*\|\s*CC\s*expiryMonth:\s*(\d+)\s*\|\s*CC\s*ExpYear:\s*(\d+)\s*\|\s*CC\s*Last4Digit:\s*(\d{4})\s*\|\s*CC\s*Funding:\s*([^\]]+)\]/i;
@@ -831,6 +835,7 @@
         
         if (0 === extractedPairs.length) return showToast("ماكو نتائج مطابقة");
 
+        // تصفية النتائج المكررة وتجميع المميزات
         const uniqueResults = [];
         for (const [email, password, hasGamePass, price, card, address] of extractedPairs) {
             const key = email.toLowerCase() + ":" + password;
@@ -945,6 +950,7 @@
             const t = [...e].map(e => { 
                 const email = e.querySelector(".email").textContent.trim(); 
                 const pwDiv = e.querySelector(".pw");
+                // استخراج كلمة السر كنص عادي، وتجاهل الـ Spans
                 const password = pwDiv.firstChild.textContent.trim(); 
                 const notes = [...pwDiv.querySelectorAll('.gamepass-note, .price-note, .cc-note, .address-note')].map(span => span.textContent.trim()).join(' | ');
                 
@@ -979,13 +985,16 @@
         // تعيين الوظيفة الأصلية لزر الدخول عند تحميل الصفحة لأول مرة
         submitBtn.onclick = handleLogin;
         
+        // إضافة كود افتراضي إذا لم توجد أكواد
         if (getCodes().length === 0) {
             saveCodes([{ code: "1234", expiry: null, isPermanent: true, creationDate: Date.now() }]);
         }
         
+        // ربط وظائف التنظيف والنسخ والتنزيل لأداة MAX
         clearBtnMax.onclick = () => { inputMax.value = "", listMax.innerHTML = "", showToast("تم مسح محتوى أداة MAX"); };
         setupCopyDownload(listMax, copyAllBtnMax, downloadBtnMax, "MAX");
         
+        // ربط وظائف التنظيف والنسخ والتنزيل لأداة PRO
         clearBtnPro.onclick = () => { inputPro.value = "", listPro.innerHTML = "", showToast("تم مسح محتوى أداة PRO"); };
         setupCopyDownload(listPro, copyAllBtnPro, downloadBtnPro, "PRO");
 
