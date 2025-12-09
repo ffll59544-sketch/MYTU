@@ -21,6 +21,7 @@
             --ultra-cc-color: #ffc107;
             --text-color: #f0f0f0;
             --border-color: #3a3a3a;
+            --ai-color: #4CAF50; /* لون جديد لأداة الذكاء الاصطناعي */
         }
         body { margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, 'Helvetica Neue', Arial; background: var(--bg); padding-top: 20px; padding-bottom: 50px; min-height: 100vh; color: var(--text-color); }
         .wrap { max-width: 900px; margin: 20px auto; padding: 15px; position: relative; }
@@ -64,6 +65,38 @@
         .link-title { font-weight: 700; color: var(--pro-accent); }
         .link-desc { font-size: 13px; color: #aaa; margin-top: 5px; }
         .footer { color: #555 !important; }
+
+        /* ستايل صفحة الذكاء الاصطناعي الجديدة */
+        #ai-tool-content {
+            text-align: center;
+            padding: 50px 20px;
+        }
+        #ai-tool-content h1 {
+            color: var(--ai-color);
+            font-size: 36px;
+            margin-bottom: 30px;
+        }
+        #ai-tool-content p {
+            font-size: 18px;
+            color: #ccc;
+            margin-bottom: 40px;
+        }
+        .ai-link-btn {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--ai-color), #388E3C);
+            color: #fff;
+            padding: 15px 30px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-size: 20px;
+            font-weight: 800;
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.5);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .ai-link-btn:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(76, 175, 80, 0.8);
+        }
     </style>
 </head>
 <body>
@@ -77,7 +110,10 @@
         </button>
         <div id="dropdown-menu" class="hidden">
             <div class="menu-item" id="menu-switch-tool">
-                <span>🔄 التبديل إلى أداة <b id="current-tool-name">MAX</b></span>
+                <span>🔄 التبديل إلى أداة <b id="current-tool-name">PRO</b></span>
+            </div>
+            <div class="menu-item" onclick="navigateToTool('ai')">
+                <span>🤖 أداة الذكاء الاصطناعي</span>
             </div>
             <div class="menu-item" onclick="promptAdminLogin()">
                 <span>⚙️ لوحة الأدمن</span>
@@ -118,45 +154,62 @@
             <div class="list" id="list-pro"></div>
         </div>
     </div>
-
-
-    <div class="quick-links">
-        <h2>🚀 روابط الوصول السريع (مايكروسوفت/إكس بوكس)</h2>
-        <div class="link-grid">
-            <a href="https://account.microsoft.com/account/manage" target="_blank" class="quick-link-btn">
-                <div class="link-title">مايكروسوفت: إدارة الحساب <span>💻</span></div>
-                <div class="link-desc">صفحة الإعدادات والمشتريات والخدمات.</div>
-            </a>
-            <a href="https://account.microsoft.com/billing/payments/" target="_blank" class="quick-link-btn">
-                <div class="link-title">مايكروسوفت: الدفع والفوترة <span>💳</span></div>
-                <div class="link-desc">عرض وإدارة بطاقات الدفع والاشتراكات النشطة.</div>
-            </a>
-            <a href="https://account.live.com/password/change" target="_blank" class="quick-link-btn">
-                <div class="link-title">مايكروسوفت: تغيير كلمة السر <span>🔒</span></div>
-                <div class="link-desc">الدخول لتحديث كلمة المرور الحالية.</div>
-            </a>
-            <a href="https://account.live.com/proofs/Manage/signout" target="_blank" class="quick-link-btn">
-                <div class="link-title">تسجيل الخروج من كل الأجهزة <span>🚪</span></div>
-                <div class="link-desc">لإغلاق الجلسة الحالية على جميع المتصفحات.</div>
-            </a>
-            <a href="https://account.xbox.com/ar-SA/Account/Signin?returnUrl=https%3a%2f%2faccount.xbox.com%2far-SA%2fSettings" target="_blank" class="quick-link-btn">
-                <div class="link-title">إكس بوكس: إدارة الإعدادات <span>🎮</span></div>
-                <div class="link-desc">الدخول المباشر لحساب إكس بوكس وإدارة الإعدادات.</div>
-            </a>
-            <a href="https://redeem.microsoft.com/" target="_blank" class="quick-link-btn">
-                <div class="link-title">إكس بوكس: تفعيل كود (Redeem) <span>🎁</span></div>
-                <div class="link-desc">لتفعيل أكواد الاشتراكات أو الهدايا مباشرة.</div>
-            </a>
-            <a href="https://store.steampowered.com/login/" target="_blank" class="quick-link-btn">
-                <div class="link-title">منصة Steam: تسجيل الدخول <span>🔥</span></div>
-                <div class="link-desc">صفحة الدخول الرسمية لمنصة Steam للألعاب.</div>
-            </a>
-            <a href="https://store.epicgames.com/login" target="_blank" class="quick-link-btn">
-                <div class="link-title">منصة Epic Games: تسجيل الدخول <span>⚔️</span></div>
-                <div class="link-desc">صفحة الدخول الرسمية لمنصة إيبك جيمز.</div>
-            </a>
+    
+    <div id="ai-tool" class="tool-view hidden">
+        <div class="card" style="background: #1a1a1a;">
+            <div id="ai-tool-content">
+                <h1>🤖 أداة الذكاء الاصطناعي المفتوحة </h1>
+                <p>
+                    تدخلك مباشرةً إلى شات ذكاء اصطناعي قوي ومجاني (مثل Gemini) يتقبل كل استفساراتك.
+                </p>
+                <a href="https://gemini.google.com/app" target="_blank" class="ai-link-btn">
+                    ابدأ محادثتك المفتوحة الآن
+                </a>
+            </div>
         </div>
     </div>
+
+
+    <div id="link-section">
+        <div class="quick-links">
+            <h2>🚀 روابط الوصول السريع (مايكروسوفت/إكس بوكس)</h2>
+            <div class="link-grid">
+                <a href="https://account.microsoft.com/account/manage" target="_blank" class="quick-link-btn">
+                    <div class="link-title">مايكروسوفت: إدارة الحساب <span>💻</span></div>
+                    <div class="link-desc">صفحة الإعدادات والمشتريات والخدمات.</div>
+                </a>
+                <a href="https://account.microsoft.com/billing/payments/" target="_blank" class="quick-link-btn">
+                    <div class="link-title">مايكروسوفت: الدفع والفوترة <span>💳</span></div>
+                    <div class="link-desc">عرض وإدارة بطاقات الدفع والاشتراكات النشطة.</div>
+                </a>
+                <a href="https://account.live.com/password/change" target="_blank" class="quick-link-btn">
+                    <div class="link-title">مايكروسوفت: تغيير كلمة السر <span>🔒</span></div>
+                    <div class="link-desc">الدخول لتحديث كلمة المرور الحالية.</div>
+                </a>
+                <a href="https://account.live.com/proofs/Manage/signout" target="_blank" class="quick-link-btn">
+                    <div class="link-title">تسجيل الخروج من كل الأجهزة <span>🚪</span></div>
+                    <div class="link-desc">لإغلاق الجلسة الحالية على جميع المتصفحات.</div>
+                </a>
+                <a href="https://account.xbox.com/ar-SA/Account/Signin?returnUrl=https%3a%2f%2faccount.xbox.com%2far-SA%2fSettings" target="_blank" class="quick-link-btn">
+                    <div class="link-title">إكس بوكس: إدارة الإعدادات <span>🎮</span></div>
+                    <div class="link-desc">الدخول المباشر لحساب إكس بوكس وإدارة الإعدادات.</div>
+                </a>
+                <a href="https://redeem.microsoft.com/" target="_blank" class="quick-link-btn">
+                    <div class="link-title">إكس بوكس: تفعيل كود (Redeem) <span>🎁</span></div>
+                    <div class="link-desc">لتفعيل أكواد الاشتراكات أو الهدايا مباشرة.</div>
+                </a>
+                <a href="https://store.steampowered.com/login/" target="_blank" class="quick-link-btn">
+                    <div class="link-title">منصة Steam: تسجيل الدخول <span>🔥</span></div>
+                    <div class="link-desc">صفحة الدخول الرسمية لمنصة Steam للألعاب.</div>
+                </a>
+                <a href="https://store.epicgames.com/login" target="_blank" class="quick-link-btn">
+                    <div class="link-title">منصة Epic Games: تسجيل الدخول <span>⚔️</span></div>
+                    <div class="link-desc">صفحة الدخول الرسمية لمنصة إيبك جيمز.</div>
+                </a>
+            </div>
+        </div>
+    </div>
+
 
     <div class="footer" style="text-align:center;color:#444;font-size:13px;margin-top:20px;">
         حقوق © Telegram: <b>@xgbox7</b> | أداة LEX-OMEGA/GEN3 (المحدثة)
@@ -167,7 +220,7 @@
     <div class="card" style="background:#1a1a1a;">
         <h2>لوحة إدارة أكواد LEX-OMEGA/GEN3</h2>
         <div style="text-align:center; margin-bottom: 15px;">
-            <a href="#" onclick="navigateTo('tool'); return false;" style="color:var(--accent); font-weight:bold;">الخروج من لوحة الأدمن</a>
+            <a href="#" onclick="navigateToTool('max'); return false;" style="color:var(--accent); font-weight:bold;">الخروج من لوحة الأدمن</a>
         </div>
         <div class="card" style="background:var(--admin-bg);">
             <h3>إضافة مفتاح دخول جديد 🔑</h3>
@@ -219,6 +272,8 @@
     const parseBtnPro = document.getElementById("parseBtn-pro");
     const maxToolView = document.getElementById('max-tool');
     const proToolView = document.getElementById('pro-tool');
+    const aiToolView = document.getElementById('ai-tool'); // المتغير الجديد لأداة الذكاء الاصطناعي
+    const linkSection = document.getElementById('link-section'); // قسم الروابط السريعة
     const menuSwitchTool = document.getElementById('menu-switch-tool');
     const currentToolName = document.getElementById('current-tool-name');
     const menuButton = document.getElementById('menu-button');
@@ -250,16 +305,48 @@
     function deleteCode(codeToDelete) { /* ... */ }
     function clearExpiredCodes() { /* ... */ }
     function loadCodes() { /* ... */ }
+    
+    // *** دالة التنقل الرئيسية المُحدثة ***
+    function navigateToTool(toolId) { 
+        toolPage.classList.remove('hidden');
+        adminPage.classList.add('hidden');
+        
+        maxToolView.classList.add('hidden');
+        proToolView.classList.add('hidden');
+        aiToolView.classList.add('hidden');
+        
+        // إظهار/إخفاء قسم الروابط السريعة
+        if (toolId === 'ai') {
+            linkSection.classList.add('hidden');
+        } else {
+             linkSection.classList.remove('hidden');
+        }
+
+        if (toolId === 'max') {
+            currentTool = 'max';
+            maxToolView.classList.remove('hidden');
+            currentToolName.textContent = 'PRO';
+        } else if (toolId === 'pro') {
+            currentTool = 'pro';
+            proToolView.classList.remove('hidden');
+            currentToolName.textContent = 'MAX';
+        } else if (toolId === 'ai') {
+            currentTool = 'ai';
+            aiToolView.classList.remove('hidden');
+        }
+        dropdownMenu.classList.add('hidden');
+    }
+
     function navigateTo(pageId) { 
         if (pageId === 'tool') {
-            toolPage.classList.remove('hidden');
-            adminPage.classList.add('hidden');
+            navigateToTool(currentTool); // نرجع للأداة الحالية
         } else if (pageId === 'admin') {
             toolPage.classList.add('hidden');
             adminPage.classList.remove('hidden');
             loadCodes();
         }
     }
+
     function promptAdminLogin() { 
         const code = prompt("أدخل كود الأدمن:");
         if (code === ADMIN_CODE) {
@@ -268,24 +355,13 @@
             showToast("كود الأدمن غلط!");
         }
     }
-    function switchTool(tool) { 
-        currentTool = tool;
-        if (tool === 'max') {
-            maxToolView.classList.remove('hidden');
-            proToolView.classList.add('hidden');
-            currentToolName.textContent = 'PRO';
-        } else {
-            maxToolView.classList.add('hidden');
-            proToolView.classList.remove('hidden');
-            currentToolName.textContent = 'MAX';
-        }
-        dropdownMenu.classList.add('hidden');
+    
+    function switchTool() { 
+        const nextTool = (currentTool === 'max') ? 'pro' : 'max';
+        navigateToTool(nextTool);
     }
 
-    menuSwitchTool.onclick = () => {
-        const nextTool = (currentTool === 'max') ? 'pro' : 'max';
-        switchTool(nextTool);
-    };
+    menuSwitchTool.onclick = switchTool;
 
     menuButton.onclick = (e) => {
         e.stopPropagation();
@@ -730,7 +806,8 @@
         clearBtnPro.onclick = () => { inputPro.value = "", listPro.innerHTML = "", showToast("تم مسح محتوى أداة PRO"); };
         setupCopyDownload(listPro, copyAllBtnPro, downloadBtnPro, "PRO");
 
-        navigateTo('tool'); 
+        // يتم بدء التشغيل على أداة MAX
+        navigateToTool('max'); 
     };
 
 </script>
