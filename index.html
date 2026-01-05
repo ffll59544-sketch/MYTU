@@ -873,4 +873,17 @@
         setTimeout(hideSplashScreen, 0); 
 
         clearBtnMax.onclick = () => { inputMax.value = "", listMax.innerHTML = "", showToast("تم مسح محتوى أداة MAX"); };
-        setupCopyDownloa
+        setupCopyDownload(listMax, copyAllBtnMax, downloadBtnMax, "MAX");
+        
+        clearBtnPro.onclick = () => { inputPro.value = "", listPro.innerHTML = "", showToast("تم مسح محتوى أداة PRO"); };
+        setupCopyDownload(listPro, copyAllBtnPro, downloadBtnPro, "PRO");
+
+        copyCodeBtn.onclick = copyGeneratedCode;
+        
+        switchTool('max'); 
+        navigateTo('tool'); 
+    };
+
+</script>
+</body>
+</html>
