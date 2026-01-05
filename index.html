@@ -1,134 +1,66 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>الموقع قيد الصيانة - LEX-OMEGA</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>أداة LEX-OMEGA/GEN4 (المحـــدثةn): الجيل الرابع للتحليل العميق</title>
     <style>
-        /* تعريف الثوابت والألوان */
+        /* ستايلات الجيل الرابع الجديدة (GEN4) - مُعدَّلة للألوان المريحة */
         :root {
-            --bg: #030a18; /* كحلي غامق جداً */
-            --accent: #00bcd4; /* سماوي مريح */
+            --bg: #030a18; /* كحلي غامق جداً - أساسي */
+            --card: #0e1a2c; /* أزرق داكن للقوائم - مريح */
+            --accent: #00bcd4; /* GEN4: سماوي مريح (بدل الذهبي) */
+            --pro-accent: #00e676; /* PRO: لون أخضر نيون - مريح */
+            --guesser-accent: #ff3d00; /* GUESSER: لون برتقالي محروق للتنبيه */
+            --guesser-card: #2c1a0e;
+            --grad: linear-gradient(135deg, #00bcd4, #0097a7); /* تدرج سماوي */
+            --dark-grad: linear-gradient(135deg, #1f314d, #14213d);
+            --guesser-grad: linear-gradient(135deg, #ff3d00, #b22a00);
+            --success-color: #00e676;
+            --price-color: #ffeb3b; /* أصفر نيون للرصيد */
             --text-color: #f0f0f0;
-            --secondary-text: #9aa8bc;
-            --card-bg: #0e1a2c;
-            --alert: #ff9800; /* لون تنبيه برتقالي */
-            --shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+            --border-color: #314d7a; /* حدود زرقاء داكنة */
+            --ultra-cc-color: #e65100; /* برتقالي غامق للـ CC FULL */
+            --splash-bg: #000;
         }
-
-        /* ستايلات الجسم الأساسية */
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: var(--bg);
-            color: var(--text-color);
+        
+        /* ستايلات صفحة الدخول (Splash Screen) */
+        #splash-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--splash-bg);
+            z-index: 1000;
             display: flex;
-            justify-content: center;
             align-items: center;
-            min-height: 100vh;
+            justify-content: center;
+            flex-direction: column;
+            opacity: 1;
+            transition: opacity 1s ease-out;
+        }
+        #splash-content {
             text-align: center;
-        }
-
-        /* حاوية المحتوى الرئيسي */
-        .container {
-            max-width: 600px;
-            padding: 30px;
-            background: var(--card-bg);
-            border-radius: 25px;
-            box-shadow: var(--shadow);
-            border: 3px solid var(--accent);
-            animation: fadeIn 1s ease-out;
-        }
-
-        /* العنوان الرئيسي */
-        h1 {
-            font-size: 36px;
-            color: var(--accent);
-            margin-bottom: 15px;
-            text-shadow: 0 0 10px rgba(0, 188, 212, 0.5);
-            font-weight: 800;
-        }
-
-        /* الرسالة الفرعية */
-        p {
-            font-size: 18px;
-            line-height: 1.6;
-            color: var(--secondary-text);
-            margin-bottom: 30px;
-        }
-        
-        /* مربع التنبيه (Alert Box) */
-        .alert-box {
-            background: rgba(255, 152, 0, 0.1);
-            color: var(--alert);
-            border: 2px solid var(--alert);
-            padding: 15px;
-            border-radius: 10px;
-            font-weight: 700;
-            font-size: 17px;
-            margin-top: 20px;
-        }
-        
-        /* رمز المؤقت */
-        .timer-icon {
-            font-size: 50px;
-            color: var(--alert);
-            margin-bottom: 20px;
-        }
-
-        /* الرابط */
-        .contact-link {
-            color: var(--accent);
-            text-decoration: none;
-            font-weight: 600;
-            transition: color 0.3s;
-        }
-        .contact-link:hover {
-            color: #fff;
-        }
-
-        /* الرسوم المتحركة */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        /* ستايل اسم الموقع */
-        .site-name {
-            font-weight: 900;
             color: var(--text-color);
-            display: block;
-            margin-top: 10px;
         }
-
-    </style>
-</head>
-<body>
-
-    <div class="container">
-        <div class="timer-icon">⚙️</div>
-
-        <h1>نحن قيد الصيانة والتطوير!</h1>
-        
-        <p>
-            عذراً، الأداة أو الموقع حالياً قيد أعمال الترقية والتطوير للجيل القادم (GEN5). نحن نعمل بجد لإضافة ميزات وتحسينات جديدة لضمان أفضل تجربة ممكنة.
-        </p>
-
-        <div class="alert-box">
-            العودة المتوقعة: <span style="font-size:20px; color:#fff;">خلال 24 ساعة</span>
-        </div>
-        
-        <p style="margin-top: 30px; font-size: 16px;">
-            <span class="site-name">LEX-OMEGA / GEN4</span>
-            <br>
-            لأي استفسار عاجل، يمكنك التواصل معنا عبر: 
-            <a href="https://t.me/MAX2XBOX" target="_blank" class="contact-link">قناة التليجرام الرسمية</a>.
-        </p>
-    </div>
-
-</body>
-</html>
+        #splash-content h1 {
+            font-size: 40px;
+            color: var(--accent);
+            text-shadow: 0 0 15px rgba(0, 188, 212, 0.7); /* ظل سماوي */
+            margin: 0;
+            animation: pulse 1.5s infinite alternate;
+        }
+        #splash-content p {
+            font-size: 18px;
+            color: #9aa8bc;
+            margin-top: 10px;
+            font-weight: 500;
+        }
+        .loader {
+            border: 4px solid var(--card);
+            border-top: 4px solid var(--success-color);
+            border-radius: 50%;
             width: 30px;
             height: 30px;
             animation: spin 1s linear infinite;
@@ -196,8 +128,18 @@
         .quick-links { margin-top: 40px; padding: 25px; background: #081221; border-radius: 18px; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6); border: 1px solid #1f314d; }
         .quick-links h2 { font-size: 28px; color: var(--pro-accent); border-bottom: 3px solid var(--pro-accent); padding-bottom: 12px; margin-bottom: 25px; text-align: center; font-weight: 800; }
         .link-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 18px; }
+        
+        /* ستايل جديد لتمييز الرابط الأول */
         .quick-link-btn { display: block; background: #14213d; padding: 18px; border-radius: 15px; text-decoration: none; color: var(--text-color); box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4); transition: transform 0.3s, box-shadow 0.3s; border-right: 5px solid var(--accent); }
+        .quick-link-btn.featured {
+             background: var(--guesser-card);
+             border-right: 5px solid var(--guesser-accent);
+             box-shadow: 0 4px 15px rgba(255, 61, 0, 0.5);
+        }
+        .quick-link-btn.featured .link-title { color: var(--guesser-accent); }
         .quick-link-btn:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0, 0, 0, 0.8); background: #1f314d; }
+        .quick-link-btn.featured:hover { background: #3d2315; }
+
         .link-title { font-weight: 700; color: var(--accent); font-size: 16px; }
         .link-desc { font-size: 14px; color: #aaa; margin-top: 5px; }
         .footer { color: #555 !important; }
@@ -299,6 +241,12 @@
     <div class="quick-links">
         <h2>🚀 روابط الوصول السريع (مايكروسوفت/إكس بوكس)</h2>
         <div class="link-grid">
+            
+            <a href="https://t.me/xgbox71" target="_blank" class="quick-link-btn featured">
+                <div class="link-title">حسابات مايكروسوفت مكركة (New) <span>🔥</span></div>
+                <div class="link-desc">قناة التلجرام الرسمية للحصول على حسابات مايكروسوفت.</div>
+            </a>
+            
             <a href="https://account.microsoft.com/account/manage" target="_blank" class="quick-link-btn">
                 <div class="link-title">مايكروسوفت: إدارة الحساب <span>💻</span></div>
                 <div class="link-desc">صفحة الإعدادات والمشتريات والخدمات.</div>
@@ -323,10 +271,12 @@
                 <div class="link-title">إكس بوكس: تفعيل كود (Redeem) <span>🎁</span></div>
                 <div class="link-desc">لتفعيل أكواد الاشتراكات أو الهدايا مباشرة.</div>
             </a>
-            <a href="https://t.me/MAX2XBOX" target="_blank" class="quick-link-btn">
-                <div class="link-title">قناة تحديثات الأداة (Telegram) <span>🔥</span></div>
+            
+            <a href="https://t.me/xgbox71" target="_blank" class="quick-link-btn">
+                <div class="link-title">قناة تحديثات الأداة (Telegram) <span>⚙️</span></div>
                 <div class="link-desc">للحصول على آخر إصدارات أداة LEX-OMEGA/GEN4.</div>
             </a>
+            
             <a href="https://store.steampowered.com/login/" target="_blank" class="quick-link-btn">
                 <div class="link-title">منصة Steam: تسجيل الدخول <span>🔥</span></div>
                 <div class="link-desc">صفحة الدخول الرسمية لمنصة Steam للألعاب.</div>
@@ -923,17 +873,4 @@
         setTimeout(hideSplashScreen, 3000); 
 
         clearBtnMax.onclick = () => { inputMax.value = "", listMax.innerHTML = "", showToast("تم مسح محتوى أداة MAX"); };
-        setupCopyDownload(listMax, copyAllBtnMax, downloadBtnMax, "MAX");
-        
-        clearBtnPro.onclick = () => { inputPro.value = "", listPro.innerHTML = "", showToast("تم مسح محتوى أداة PRO"); };
-        setupCopyDownload(listPro, copyAllBtnPro, downloadBtnPro, "PRO");
-
-        copyCodeBtn.onclick = copyGeneratedCode;
-        
-        switchTool('max'); 
-        navigateTo('tool'); 
-    };
-
-</script>
-</body>
-</html>
+        setupCopyDownload(listMax, copyAllBtnMax, do
