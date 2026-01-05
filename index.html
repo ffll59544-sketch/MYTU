@@ -869,8 +869,8 @@
     // ** تهيئة الصفحة عند التحميل **
     // **********************************************
     window.onload = () => {
-        // عرض شاشة البداية لمدة 3 ثواني
-        setTimeout(hideSplashScreen, 3000); 
+        // تم التعديل هنا: الدخول الفوري إلى الأداة (0ms) لتجنب التعليق
+        setTimeout(hideSplashScreen, 0); 
 
         clearBtnMax.onclick = () => { inputMax.value = "", listMax.innerHTML = "", showToast("تم مسح محتوى أداة MAX"); };
-        setupCopyDownload(listMax, copyAllBtnMax, do
+        setupCopyDownloa
