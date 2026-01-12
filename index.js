@@ -17,13 +17,14 @@ app.post('/api/verify', async (req, res) => {
     if (!account || !account.includes(':')) return res.status(400).json({ status: 'FAILED' });
 
     const [email, password] = account.split(':');
-    
     let agent = null;
+
     if (proxy && proxy.includes(':')) {
-        // تحويل صيغة البروكسي إلى URL صالح للمكتبة
-        // الصيغة المدعومة: socks5://user:pass@host:port أو socks5://host:port
-        const proxyUrl = proxy.includes('@') ? `socks5://${proxy}` : `socks5://${proxy}`;
-        agent = new SocksProxyAgent(proxyUrl);
+        try {
+            // تنظيف صيغة البروكسي
+            const cleanProxy = proxy.trim();
+            agent = new SocksProxyAgent(`socks5://${cleanProxy}`);
+        } catch (e) { console.log("Proxy Format Error"); }
     }
 
     const imap = new Imap({
@@ -32,10 +33,13 @@ app.post('/api/verify', async (req, res) => {
         host: 'outlook.office365.com',
         port: 993,
         tls: true,
-        tlsOptions: { rejectUnauthorized: false },
-        agent: agent, // هنا يتم تفعيل البروكسي
-        connTimeout: 15000,
-        authTimeout: 10000
+        tlsOptions: { 
+            rejectUnauthorized: false,
+            servername: 'outlook.office365.com' 
+        },
+        agent: agent,
+        connTimeout: 30000, // زيادة الوقت لـ 30 ثانية
+        authTimeout: 20000
     });
 
     const finish = (status) => {
@@ -44,7 +48,10 @@ app.post('/api/verify', async (req, res) => {
     };
 
     imap.once('ready', () => finish('SUCCESS'));
-    imap.once('error', () => finish('FAILED'));
+    imap.once('error', (err) => {
+        console.log('IMAP Error:', err.message);
+        finish('FAILED');
+    });
     
     try {
         imap.connect();
