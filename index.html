@@ -1,446 +1,0 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>أدوات الحسابات المدمجة - الفرز والتقسيم</title>
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f4f7f6;
-            color: #333;
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            min-height: 100vh;
-        }
-
-        .container {
-            background-color: #fff;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            max-width: 950px; /* زيادة العرض قليلاً */
-        }
-
-        h1 {
-            color: #007bff;
-            text-align: center;
-            margin-bottom: 25px;
-            border-bottom: 2px solid #eee;
-            padding-bottom: 10px;
-        }
-
-        /* تنسيق علامات التبويب (Tabs) */
-        .tabs {
-            display: flex;
-            margin-bottom: 20px;
-            border-bottom: 2px solid #ddd;
-        }
-        .tab-button {
-            flex-grow: 1;
-            padding: 15px 0;
-            cursor: pointer;
-            background-color: #f8f9fa;
-            border: 1px solid #ddd;
-            border-bottom: none;
-            text-align: center;
-            font-weight: bold;
-            color: #6c757d;
-            border-top-left-radius: 8px;
-            border-top-right-radius: 8px;
-            transition: background-color 0.3s, color 0.3s;
-        }
-        .tab-button.active {
-            background-color: #fff;
-            color: #007bff;
-            border-color: #007bff;
-            border-bottom: 2px solid #fff;
-        }
-        .tab-content {
-            display: none;
-            padding: 20px 0;
-        }
-        .tab-content.active {
-            display: block;
-        }
-
-        /* تنسيق العناصر المشتركة */
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: bold;
-            color: #555;
-        }
-
-        textarea {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 20px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            box-sizing: border-box;
-            resize: vertical;
-        }
-
-        input[type="number"] {
-            width: 100px;
-            text-align: center;
-            padding: 10px;
-            margin-bottom: 15px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            box-sizing: border-box;
-        }
-
-        /* تنسيق الأزرار المشتركة */
-        .action-button {
-            background-color: #28a745;
-            color: white;
-            padding: 12px 20px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 16px;
-            width: 100%;
-            margin-top: 10px;
-            transition: background-color 0.3s ease;
-        }
-
-        .action-button:hover {
-            background-color: #218838;
-        }
-        
-        /* أزرار الفرز */
-        #sortButton { background-color: #007bff; }
-        #sortButton:hover { background-color: #0056b3; }
-        #downloadButton { background-color: #17a2b8; }
-        #downloadButton:hover { background-color: #138496; }
-        #copyButton { background-color: #6c757d; }
-        #copyButton:hover { background-color: #5a6268; }
-
-        /* أزرار التقسيم */
-        #splitMainButton { background-color: #dc3545; }
-        #splitMainButton:hover { background-color: #c82333; }
-        #fileInputButton { background-color: #ffc107; color: #343a40; }
-        #fileInputButton:hover { background-color: #e0a800; }
-        .copy-chunk-button { background-color: #6c757d; padding: 5px 10px; font-size: 14px; width: auto; margin: 0; }
-        .copy-chunk-button:hover { background-color: #5a6268; }
-
-        .results, .split-results {
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 2px solid #eee;
-        }
-
-        .result-box, .split-chunk {
-            background-color: #e9ecef;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-        }
-
-        .result-box h3, .split-chunk h3 {
-            margin-top: 0;
-            color: #007bff;
-            border-bottom: 1px dashed #ced4da;
-            padding-bottom: 5px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        pre {
-            white-space: pre-wrap;
-            word-wrap: break-word;
-            background-color: #fff;
-            padding: 10px;
-            border: 1px solid #dee2e6;
-            border-radius: 4px;
-            min-height: 50px;
-        }
-        
-        .action-buttons-group {
-            display: flex;
-            gap: 10px;
-            margin-top: 15px;
-        }
-        .action-buttons-group .action-button {
-            width: 50%;
-            margin-top: 0;
-        }
-        .upload-split-group {
-            display: flex;
-            gap: 10px;
-        }
-        .upload-split-group > button {
-            flex-grow: 1;
-        }
-    </style>
-</head>
-<body>
-
-<div class="container">
-    <h1>أدوات إدارة الحسابات</h1>
-
-    <div class="tabs">
-        <button class="tab-button active" onclick="openTab('sorterTool', this)">
-            ⚙️ أداة فرز الحسابات (الصالح/الفاشل)
-        </button>
-        <button class="tab-button" onclick="openTab('splitterTool', this)">
-            ✂️ أداة تقسيم الحسابات (Chunks)
-        </button>
-    </div>
-
-    <div id="sorterTool" class="tab-content active">
-        <p>أدخل قائمة الحسابات في الحقول المخصصة لفصل الإيميلات الصالحة (التي لم تُذكر في قائمة الأخطاء).</p>
-
-        <label for="allAccounts">1. قائمة الحسابات العامة (الإيميل:كلمة المرور)</label>
-        <textarea id="allAccounts" rows="10" placeholder="الصق قائمة الحسابات العامة هنا (كل حساب في سطر)..."></textarea>
-
-        <label for="failedAccounts">2. قائمة الحسابات الفاشلة (الإيميل:رسالة الخطأ)</label>
-        <textarea id="failedAccounts" rows="10" placeholder="الصق قائمة الحسابات الفاشلة هنا (كل حساب في سطر)..."></textarea>
-
-        <button id="sortButton" class="action-button" onclick="sortAccounts()">افصل واستخرج الإيميلات الصالحة</button>
-
-        <div class="results">
-            <h2>نتائج الفرز</h2>
-            
-            <div class="result-box">
-                <h3>الإيميلات الصالحة مع كلمات المرور</h3>
-                <pre id="successfulAccountsOutput">اضغط على زر "افصل واستخرج" لرؤية النتائج هنا...</pre>
-            </div>
-            
-            <div class="action-buttons-group">
-                <button id="copyButton" class="action-button" onclick="copyResults()">
-                    📄 نسخ الحسابات الصالحة
-                </button>
-                <button id="downloadButton" class="action-button" onclick="downloadResults()">
-                    ⬇️ تنزيل كملف TXT
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <div id="splitterTool" class="tab-content">
-        <p>قم بتقسيم قائمة كبيرة من الحسابات إلى أجزاء صغيرة بحجم محدد يسهل التعامل معه.</p>
-        
-        <label for="chunkSize">حجم القسم (عدد الحسابات في كل جزء، الافتراضي: 300)</label>
-        <input type="number" id="chunkSize" value="300" min="1" max="5000">
-
-        <label for="accountsToSplit">الصق قائمة الحسابات هنا (كل حساب في سطر)</label>
-        <textarea id="accountsToSplit" rows="10" placeholder="الصق قائمة الحسابات التي تريد تقسيمها هنا..."></textarea>
-        
-        <input type="file" id="fileInput" accept=".txt" style="display: none;">
-
-        <div class="upload-split-group">
-            <button id="fileInputButton" class="action-button" onclick="document.getElementById('fileInput').click()">
-                ⬆️ اسحب ملف الحسابات (TXT)
-            </button>
-            <button id="splitMainButton" class="action-button" onclick="splitAccounts()">
-                ✂️ تقسيم الحسابات
-            </button>
-        </div>
-
-        <div class="split-results" id="splitResults">
-            <h2>نتائج التقسيم</h2>
-            <p>بعد الضغط على "تقسيم الحسابات"، ستظهر الأقسام هنا.</p>
-        </div>
-    </div>
-
-</div>
-
-<script>
-    // ===================================
-    // وظائف علامات التبويب (Tabs Functionality)
-    // ===================================
-
-    function openTab(tabId, element) {
-        // إخفاء جميع المحتويات
-        const contents = document.getElementsByClassName('tab-content');
-        for (let i = 0; i < contents.length; i++) {
-            contents[i].classList.remove('active');
-        }
-
-        // إزالة حالة النشاط من جميع الأزرار
-        const buttons = document.getElementsByClassName('tab-button');
-        for (let i = 0; i < buttons.length; i++) {
-            buttons[i].classList.remove('active');
-        }
-
-        // عرض المحتوى المطلوب وتنشيط الزر
-        document.getElementById(tabId).classList.add('active');
-        element.classList.add('active');
-    }
-
-    // ===================================
-    // وظائف أداة الفرز (Sorter Tool)
-    // ===================================
-    
-    let finalSuccessfulAccountsText = ""; // متغير عالمي لتخزين قائمة الحسابات الصالحة المنسقة
-
-    function sortAccounts() {
-        const allAccountsText = document.getElementById('allAccounts').value;
-        const failedAccountsText = document.getElementById('failedAccounts').value;
-
-        // 1. تحليل قائمة الحسابات العامة
-        const allAccountsMap = new Map();
-        const allLines = allAccountsText.split('\n').filter(line => line.trim() !== '');
-        
-        for (const line of allLines) {
-            const parts = line.split(':');
-            if (parts.length >= 2) {
-                const email = parts[0].trim();
-                const restOfLine = parts.slice(1).join(':').trim(); 
-                allAccountsMap.set(email, restOfLine);
-            }
-        }
-
-        // 2. تحليل قائمة الإيميلات الفاشلة
-        const failedEmailsSet = new Set();
-        const failedLines = failedAccountsText.split('\n').filter(line => line.trim() !== '');
-
-        for (const line of failedLines) {
-            const parts = line.split(':');
-            if (parts.length >= 2) {
-                const email = parts[0].trim();
-                failedEmailsSet.add(email);
-            }
-        }
-
-        // 3. تحديد الإيميلات الصالحة
-        const successfulAccounts = [];
-        
-        for (const [email, password] of allAccountsMap.entries()) {
-            if (!failedEmailsSet.has(email)) {
-                successfulAccounts.push(`${email}:${password}`);
-            }
-        }
-
-        // 4. عرض النتائج وتخزينها
-        finalSuccessfulAccountsText = successfulAccounts.join('\n');
-        
-        document.getElementById('successfulAccountsOutput').textContent = 
-            successfulAccounts.length > 0 
-            ? finalSuccessfulAccountsText 
-            : "لا توجد حسابات صالحة (غير فاشلة) تم العثور عليها بناءً على بياناتك.";
-    }
-
-    async function copyResults() {
-        const textToCopy = finalSuccessfulAccountsText;
-        if (!textToCopy) {
-            alert("لا توجد نتائج لنسخها. يرجى الفصل أولاً.");
-            return;
-        }
-
-        try {
-            await navigator.clipboard.writeText(textToCopy);
-            alert("تم نسخ الحسابات الصالحة بنجاح!");
-        } catch (err) {
-            console.error('فشل في النسخ:', err);
-            // قد تحتاج إلى طريقة احتياطية هنا إذا لم تعمل نافيجيتور كليب بورد
-            alert("فشل في النسخ التلقائي. يرجى النسخ يدوياً من منطقة النتائج.");
-        }
-    }
-
-    function downloadResults() {
-        const textToDownload = finalSuccessfulAccountsText;
-        if (!textToDownload) {
-            alert("لا توجد نتائج لتنزيلها. يرجى الفصل أولاً.");
-            return;
-        }
-        
-        const blob = new Blob([textToDownload], { type: 'text/plain;charset=utf-8' });
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = 'successful_accounts.txt';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-    }
-    
-    // ===================================
-    // وظائف أداة التقسيم (Splitter Tool)
-    // ===================================
-    
-    // قراءة الملفات في أداة التقسيم
-    document.getElementById('fileInput').addEventListener('change', function(event) {
-        const file = event.target.files[0];
-        if (!file) return;
-
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            document.getElementById('accountsToSplit').value = e.target.result;
-            alert(`تم تحميل ملف ${file.name} بنجاح.`);
-        };
-        reader.onerror = function() {
-            alert("فشل في قراءة الملف.");
-        };
-        reader.readAsText(file);
-    });
-
-    function splitAccounts() {
-        const accountsText = document.getElementById('accountsToSplit').value;
-        const chunkSize = parseInt(document.getElementById('chunkSize').value, 10) || 300;
-        const resultsDiv = document.getElementById('splitResults');
-
-        if (!accountsText.trim()) {
-            alert("الرجاء إدخال قائمة الحسابات للتقسيم.");
-            return;
-        }
-
-        if (chunkSize < 1) {
-            alert("يجب أن يكون حجم القسم 1 على الأقل.");
-            return;
-        }
-
-        // فصل الحسابات إلى مصفوفة وإزالة الأسطر الفارغة
-        const allAccounts = accountsText.split('\n').filter(line => line.trim() !== '');
-        
-        if (allAccounts.length === 0) {
-            resultsDiv.innerHTML = '<h2>نتائج التقسيم</h2><p>لا توجد حسابات صالحة في القائمة للتقسيم.</p>';
-            return;
-        }
-
-        // إفراغ منطقة النتائج وعرض إحصائية
-        resultsDiv.innerHTML = `<h2>نتائج التقسيم (${allAccounts.length} حساب تم تقسيمها)</h2>`;
-
-        // عملية التقسيم الرئيسية
-        let chunkIndex = 0;
-        for (let i = 0; i < allAccounts.length; i += chunkSize) {
-            chunkIndex++;
-            const chunk = allAccounts.slice(i, i + chunkSize);
-            // استخدام `encodeURIComponent` لتمرير النص بشكل آمن عبر الـ DOM
-            const chunkTextEncoded = encodeURIComponent(chunk.join('\n'));
-            
-            const chunkDiv = document.createElement('div');
-            chunkDiv.className = 'split-chunk';
-            chunkDiv.innerHTML = `
-                <h3>
-                    القسم #${chunkIndex} (${chunk.length} حساب)
-                    <button class="copy-chunk-button" onclick="copySplitChunk('${chunkTextEncoded}')">📄 نسخ</button>
-                </h3>
-                <pre>${chunk.join('\n')}</pre>
-            `;
-            resultsDiv.appendChild(chunkDiv);
-        }
-    }
-
-    async function copySplitChunk(encodedText) {
-        // فك تشفير النص قبل نسخه
-        const textToCopy = decodeURIComponent(encodedText);
-        try {
-            await navigator.clipboard.writeText(textToCopy);
-            alert("تم نسخ محتوى القسم بنجاح!");
-        } catch (err) {
-            console.error('فشل في النسخ:', err);
-            alert("فشل في النسخ التلقائي. يرجى النسخ يدوياً.");
-        }
-    }
-</script>
-
-</body>
-</html>
