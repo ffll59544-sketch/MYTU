@@ -21,10 +21,10 @@ app.post('/api/verify', async (req, res) => {
 
     if (proxy && proxy.includes(':')) {
         try {
-            // تنظيف صيغة البروكسي
-            const cleanProxy = proxy.trim();
-            agent = new SocksProxyAgent(`socks5://${cleanProxy}`);
-        } catch (e) { console.log("Proxy Format Error"); }
+            // دعم الصيغ المختلفة للبروكسي (host:port) أو (user:pass@host:port)
+            const proxyUrl = proxy.includes('@') ? `socks5://${proxy.trim()}` : `socks5://${proxy.trim()}`;
+            agent = new SocksProxyAgent(proxyUrl);
+        } catch (e) { console.log("Proxy Config Error"); }
     }
 
     const imap = new Imap({
@@ -35,21 +35,26 @@ app.post('/api/verify', async (req, res) => {
         tls: true,
         tlsOptions: { 
             rejectUnauthorized: false,
-            servername: 'outlook.office365.com' 
+            servername: 'outlook.office365.com',
+            minVersion: 'TLSv1.2' // إجبار السيرفر على استخدام بروتوكول حديث
         },
         agent: agent,
-        connTimeout: 30000, // زيادة الوقت لـ 30 ثانية
-        authTimeout: 20000
+        connTimeout: 30000,
+        authTimeout: 20000,
+        keepalive: false // إغلاق الاتصال فوراً بعد الفحص لتجنب كشف النشاط
     });
 
     const finish = (status) => {
-        if (imap.state !== 'disconnected') imap.end();
+        if (imap.state !== 'disconnected') {
+            try { imap.end(); } catch(e) {}
+        }
         if (!res.headersSent) res.json({ status: status });
     };
 
     imap.once('ready', () => finish('SUCCESS'));
     imap.once('error', (err) => {
-        console.log('IMAP Error:', err.message);
+        // إذا كان الخطأ متعلق بالأمان أو الحظر، سيظهر في كونسول Vercel
+        console.error(`[${email}] Error: ${err.message}`);
         finish('FAILED');
     });
     
