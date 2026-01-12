@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Validator Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-900 text-white min-h-screen p-5">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold mb-8 text-center text-blue-400">نظام التحقق الذكي</h1>
+        
+        <div class="grid grid-cols-3 gap-4 mb-8">
+            <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 text-center">
+                <p class="text-slate-400">الإجمالي</p>
+                <p id="totalCount" class="text-2xl font-bold">0</p>
+            </div>
+            <div class="bg-slate-800 p-4 rounded-xl border border-green-900/50 text-center">
+                <p class="text-green-400">ناجح</p>
+                <p id="successCount" class="text-2xl font-bold text-green-500">0</p>
+            </div>
+            <div class="bg-slate-800 p-4 rounded-xl border border-red-900/50 text-center">
+                <p class="text-red-400">فاشل</p>
+                <p id="failCount" class="text-2xl font-bold text-red-500">0</p>
+            </div>
+        </div>
+
+        <div class="bg-slate-800 p-6 rounded-2xl mb-8">
+            <textarea id="accountsInput" class="w-full h-48 bg-slate-900 border border-slate-700 rounded-lg p-4 mb-4 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="ضع الحسابات هنا بصيغة email:password"></textarea>
+            <button onclick="processAccounts()" id="btnRun" class="w-full bg-blue-600 hover:bg-blue-700 py-3 rounded-lg font-bold transition">بدء الفحص الآن</button>
+        </div>
+
+        <div class="bg-slate-800 rounded-2xl overflow-hidden">
+            <table class="w-full text-right">
+                <thead class="bg-slate-700">
+                    <tr>
+                        <th class="p-4">الحساب</th>
+                        <th class="p-4">الحالة</th>
+                    </tr>
+                </thead>
+                <tbody id="resultsTable"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        let success = 0; let fail = 0;
+
+        async function processAccounts() {
+            const input = document.getElementById('accountsInput').value.trim();
+            const lines = input.split('\n');
+            if(!input) return alert('الرجاء إدخال حسابات');
+
+            document.getElementById('totalCount').innerText = lines.length;
+            document.getElementById('btnRun').disabled = true;
+            document.getElementById('btnRun').innerText = 'جاري الفحص...';
+
+            for (let line of lines) {
+                if (!line.includes(':')) continue;
+                
+                const row = document.getElementById('resultsTable').insertRow(0);
+                row.className = "border-b border-slate-700";
+                row.insertCell(0).className = "p-4 text-sm text-slate-300";
+                row.cells[0].innerText = line.split(':')[0];
+                const statusCell = row.insertCell(1);
+                statusCell.className = "p-4 font-bold text-yellow-500";
+                statusCell.innerText = "فحص...";
+
+                try {
+                    const response = await fetch('https://mytu-git-main-ffll59544-sketchs-projects.vercel.app/api/verify', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ account: line.trim() })
+                    });
+                    const data = await response.json();
+
+                    if (data.status === 'SUCCESS') {
+                        statusCell.innerText = "SUCCESS";
+                        statusCell.className = "p-4 text-green-500 font-bold";
+                        success++;
+                        document.getElementById('successCount').innerText = success;
+                    } else {
+                        statusCell.innerText = "FAILED";
+                        statusCell.className = "p-4 text-red-500 font-bold";
+                        fail++;
+                        document.getElementById('failCount').innerText = fail;
+                    }
+                } catch (e) {
+                    statusCell.innerText = "Error";
+                    fail++;
+                }
+            }
+            document.getElementById('btnRun').disabled = false;
+            document.getElementById('btnRun').innerText = 'بدء الفحص الآن';
+        }
+    </script>
+</body>
+</html>
