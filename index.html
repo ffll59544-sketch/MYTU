@@ -3,196 +3,210 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Advanced IMAP Validator Pro | SOCKS5 Support</title>
+    <title>IMAP Power Validator v3.0</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap');
         body { font-family: 'Tajawal', sans-serif; }
-        ::-webkit-scrollbar { width: 5px; }
-        ::-webkit-scrollbar-track { background: #1e293b; }
-        ::-webkit-scrollbar-thumb { background: #3b82f6; border-radius: 10px; }
+        .log-container::-webkit-scrollbar { width: 4px; }
+        .log-container::-webkit-scrollbar-thumb { background: #3b82f6; border-radius: 10px; }
+        .status-badge { transition: all 0.3s ease; }
     </style>
 </head>
-<body class="bg-[#0f172a] text-slate-200 min-h-screen p-4">
+<body class="bg-[#0b1120] text-slate-300 min-h-screen p-2 md:p-6">
 
-    <div class="max-w-6xl mx-auto">
-        <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4 bg-slate-800/40 p-6 rounded-2xl border border-slate-700/50">
+    <div class="max-w-7xl mx-auto">
+        <div class="flex flex-col lg:flex-row justify-between items-center mb-6 p-6 bg-slate-900/80 border border-slate-800 rounded-3xl shadow-2xl gap-4">
             <div>
-                <h1 class="text-3xl font-black bg-gradient-to-l from-blue-400 to-cyan-400 bg-clip-text text-transparent">IMAP NODE VALIDATOR</h1>
-                <p class="text-slate-500 text-sm mt-1">نظام الفحص المتقدم مع دعم SOCKS5</p>
+                <h1 class="text-3xl font-black bg-gradient-to-r from-blue-400 via-indigo-400 to-cyan-400 bg-clip-text text-transparent italic">IMAP POWER CHECKER</h1>
+                <p class="text-slate-500 text-xs mt-1">نظام الفحص المتوازي مع دعم SOCKS5 البروكسي</p>
             </div>
-            <div class="flex gap-3">
-                <button onclick="downloadResults('success')" class="bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 px-4 py-2 rounded-xl hover:bg-emerald-500 hover:text-white transition-all text-sm font-bold">
-                    <i class="fas fa-file-download ml-2"></i> تحميل الناجح
+            <div class="flex gap-2">
+                <button onclick="downloadResults('success')" class="bg-green-600/10 text-green-500 border border-green-600/30 px-5 py-2.5 rounded-2xl hover:bg-green-600 hover:text-white transition-all text-sm">
+                    <i class="fas fa-check-circle ml-2"></i> تحميل الشغال
                 </button>
-                <button onclick="downloadResults('failed')" class="bg-red-500/10 text-red-500 border border-red-500/20 px-4 py-2 rounded-xl hover:bg-red-500 hover:text-white transition-all text-sm font-bold">
-                    <i class="fas fa-trash-alt ml-2"></i> تحميل الفاشل
+                <button onclick="stopProcess()" class="bg-orange-600/10 text-orange-500 border border-orange-600/30 px-5 py-2.5 rounded-2xl hover:bg-orange-600 hover:text-white transition-all text-sm">
+                    <i class="fas fa-stop ml-2"></i> إيقاف
                 </button>
             </div>
         </div>
 
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-            <div class="bg-slate-800 p-5 rounded-2xl border border-slate-700 shadow-lg shadow-black/20">
-                <p class="text-slate-400 text-xs">إجمالي الكومبو</p>
-                <p id="totalCount" class="text-2xl font-bold">0</p>
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <div class="bg-slate-900 border border-slate-800 p-5 rounded-3xl relative overflow-hidden">
+                <div class="absolute top-0 right-0 p-2 opacity-10"><i class="fas fa-list text-4xl"></i></div>
+                <p class="text-slate-500 text-xs uppercase tracking-widest">الإجمالي</p>
+                <p id="totalCount" class="text-3xl font-bold mt-1 text-white">0</p>
             </div>
-            <div class="bg-slate-800 p-5 rounded-2xl border border-blue-500/30 shadow-lg shadow-black/20">
-                <p class="text-blue-400 text-xs text-right">جاري الفحص</p>
-                <p id="checkingCount" class="text-2xl font-bold">0</p>
+            <div class="bg-slate-900 border border-blue-500/20 p-5 rounded-3xl relative overflow-hidden">
+                <div class="absolute top-0 right-0 p-2 opacity-10 text-blue-500"><i class="fas fa-sync animate-spin text-4xl"></i></div>
+                <p class="text-blue-400 text-xs uppercase tracking-widest">جاري الفحص</p>
+                <p id="checkingCount" class="text-3xl font-bold mt-1 text-blue-500">0</p>
             </div>
-            <div class="bg-slate-800 p-5 rounded-2xl border border-emerald-500/30 shadow-lg shadow-black/20">
-                <p class="text-emerald-400 text-xs text-right text-right">متصل (LIVE)</p>
-                <p id="successCount" class="text-2xl font-bold">0</p>
+            <div class="bg-slate-900 border border-green-500/20 p-5 rounded-3xl relative overflow-hidden">
+                <div class="absolute top-0 right-0 p-2 opacity-10 text-green-500"><i class="fas fa-check text-4xl"></i></div>
+                <p class="text-green-400 text-xs uppercase tracking-widest">LIVE</p>
+                <p id="successCount" class="text-3xl font-bold mt-1 text-green-500">0</p>
             </div>
-            <div class="bg-slate-800 p-5 rounded-2xl border border-red-500/30 shadow-lg shadow-black/20">
-                <p class="text-red-400 text-xs text-right">مرفوض (DIE)</p>
-                <p id="failCount" class="text-2xl font-bold">0</p>
+            <div class="bg-slate-900 border border-red-500/20 p-5 rounded-3xl relative overflow-hidden">
+                <div class="absolute top-0 right-0 p-2 opacity-10 text-red-500"><i class="fas fa-times text-4xl"></i></div>
+                <p class="text-red-400 text-xs uppercase tracking-widest">DIE</p>
+                <p id="failCount" class="text-3xl font-bold mt-1 text-red-500">0</p>
             </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div class="lg:col-span-1 space-y-4">
-                <div class="bg-slate-800 p-6 rounded-3xl border border-slate-700 shadow-2xl">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <div class="lg:col-span-4 space-y-4">
+                <div class="bg-slate-900 p-6 rounded-3xl border border-slate-800 shadow-xl">
+                    <label class="flex justify-between items-center mb-3">
+                        <span class="text-sm font-bold text-slate-400">الكومبو (user:pass)</span>
+                        <button onclick="document.getElementById('comboInput').click()" class="text-blue-400 text-xs hover:text-blue-300 transition">رفع ملف</button>
+                    </label>
+                    <input type="file" id="comboInput" hidden onchange="handleFile(this, 'accounts')">
+                    <textarea id="accounts" class="w-full h-40 bg-[#050914] border border-slate-800 rounded-2xl p-4 text-xs font-mono focus:border-blue-500 outline-none resize-none" placeholder="example@hotmail.com:123456"></textarea>
+
+                    <label class="flex justify-between items-center mt-4 mb-3">
+                        <span class="text-sm font-bold text-slate-400">البروكسي (SOCKS5)</span>
+                        <button onclick="document.getElementById('proxyFileInput').click()" class="text-cyan-400 text-xs hover:text-cyan-300 transition">رفع ملف</button>
+                    </label>
+                    <input type="file" id="proxyFileInput" hidden onchange="handleFile(this, 'proxies')">
+                    <textarea id="proxies" class="w-full h-24 bg-[#050914] border border-slate-800 rounded-2xl p-4 text-xs font-mono focus:border-cyan-500 outline-none resize-none" placeholder="host:port (أو) user:pass@host:port"></textarea>
                     
-                    <div class="mb-4">
-                        <div class="flex justify-between items-center mb-2">
-                            <span class="text-sm font-bold text-slate-400">قائمة الكومبو</span>
-                            <button onclick="document.getElementById('comboFile').click()" class="text-blue-400 text-xs hover:underline">اختيار ملف .txt</button>
+                    <div class="mt-6 flex items-center gap-3">
+                        <div class="flex-1">
+                            <label class="text-[10px] text-slate-500 block mb-1">الخيوط (Threads)</label>
+                            <input type="number" id="threads" value="3" min="1" max="10" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2 text-center text-sm">
                         </div>
-                        <input type="file" id="comboFile" hidden accept=".txt" onchange="loadFile(this, 'accountsInput')">
-                        <textarea id="accountsInput" class="w-full h-48 bg-slate-900 border border-slate-700 rounded-xl p-3 text-xs outline-none focus:border-blue-500 transition-all font-mono" placeholder="email:password"></textarea>
+                        <button id="startBtn" onclick="runManager()" class="flex-[2] h-[45px] bg-gradient-to-r from-blue-600 to-indigo-600 hover:scale-[1.02] active:scale-95 text-white font-bold rounded-xl transition-all shadow-lg shadow-blue-900/20">
+                            بدء الفحص <i class="fas fa-play mr-2"></i>
+                        </button>
                     </div>
-
-                    <div class="mb-6">
-                        <div class="flex justify-between items-center mb-2">
-                            <span class="text-sm font-bold text-slate-400">بروكسيات SOCKS5</span>
-                            <button onclick="document.getElementById('proxyFile').click()" class="text-cyan-400 text-xs hover:underline">اختيار ملف .txt</button>
-                        </div>
-                        <input type="file" id="proxyFile" hidden accept=".txt" onchange="loadFile(this, 'proxyInput')">
-                        <textarea id="proxyInput" class="w-full h-32 bg-slate-900 border border-slate-700 rounded-xl p-3 text-xs outline-none focus:border-cyan-500 transition-all font-mono" placeholder="host:port:user:pass"></textarea>
-                    </div>
-
-                    <button id="startBtn" onclick="startValidation()" class="w-full bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-black py-4 rounded-2xl shadow-xl shadow-blue-500/20 transition-all transform hover:-translate-y-1 active:scale-95">
-                        <i class="fas fa-bolt ml-2"></i> تشغيل النظام
-                    </button>
                 </div>
             </div>
 
-            <div class="lg:col-span-2">
-                <div class="bg-slate-800 rounded-3xl border border-slate-700 shadow-2xl overflow-hidden">
-                    <div class="max-h-[650px] overflow-y-auto">
-                        <table class="w-full text-right text-sm">
-                            <thead class="bg-slate-900/50 sticky top-0 backdrop-blur-md">
-                                <tr>
-                                    <th class="p-4 border-b border-slate-700">الحساب</th>
-                                    <th class="p-4 border-b border-slate-700">البروكسي المستخدم</th>
-                                    <th class="p-4 border-b border-slate-700 text-center">الحالة</th>
-                                </tr>
-                            </thead>
-                            <tbody id="resultsTable" class="divide-y divide-slate-700/50">
-                                </tbody>
-                        </table>
-                    </div>
+            <div class="lg:col-span-8 bg-slate-900 rounded-3xl border border-slate-800 shadow-xl overflow-hidden flex flex-col">
+                <div class="p-4 bg-slate-950/50 border-b border-slate-800 flex justify-between items-center">
+                    <h3 class="text-sm font-bold"><i class="fas fa-terminal ml-2 text-blue-500"></i> سجل العمليات المباشر</h3>
+                    <div class="text-[10px] bg-slate-800 px-3 py-1 rounded-full text-slate-400" id="progressText">0/0</div>
+                </div>
+                <div class="overflow-x-auto log-container flex-1 max-h-[600px]">
+                    <table class="w-full text-right text-xs">
+                        <thead class="bg-slate-950/80 sticky top-0 text-slate-500">
+                            <tr>
+                                <th class="p-4 font-normal">البريد الإلكتروني</th>
+                                <th class="p-4 font-normal">البروكسي</th>
+                                <th class="p-4 font-normal text-center">الحالة</th>
+                            </tr>
+                        </thead>
+                        <tbody id="results"></tbody>
+                    </table>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        let successList = [];
-        let failedList = [];
         let isRunning = false;
+        let successList = [];
+        let totalProcessed = 0;
 
-        // دالة رفع الملفات
-        function loadFile(input, targetId) {
+        function handleFile(input, target) {
             const file = input.files[0];
             const reader = new FileReader();
             reader.onload = (e) => {
-                document.getElementById(targetId).value = e.target.result;
-                if(targetId === 'accountsInput') {
-                    document.getElementById('totalCount').innerText = e.target.result.trim().split('\n').length;
-                }
+                document.getElementById(target).value = e.target.result;
+                if(target === 'accounts') updateStats();
             };
             reader.readAsText(file);
         }
 
-        async function startValidation() {
-            const accounts = document.getElementById('accountsInput').value.trim().split('\n');
-            const proxies = document.getElementById('proxyInput').value.trim().split('\n').filter(p => p !== "");
-            const table = document.getElementById('resultsTable');
-            const btn = document.getElementById('startBtn');
+        function updateStats() {
+            const lines = document.getElementById('accounts').value.trim().split('\n').filter(l => l !== "");
+            document.getElementById('totalCount').innerText = lines.length;
+        }
 
-            if (!accounts[0]) return alert("يرجى إدخال الحسابات أولاً");
+        function stopProcess() { isRunning = false; }
 
+        async function runManager() {
+            const accounts = document.getElementById('accounts').value.trim().split('\n').filter(l => l !== "");
+            const proxies = document.getElementById('proxies').value.trim().split('\n').filter(p => p !== "");
+            const threadsCount = parseInt(document.getElementById('threads').value);
+            
+            if(accounts.length === 0) return alert("أدخل الكومبو أولاً");
+            
             isRunning = true;
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-spinner animate-spin"></i> جاري العمل...';
+            document.getElementById('startBtn').disabled = true;
+            document.getElementById('results').innerHTML = "";
+            totalProcessed = 0;
+            let successCount = 0;
+            let failCount = 0;
+            let currentIdx = 0;
 
-            let sCount = 0, fCount = 0, cCount = 0;
+            const updateUI = () => {
+                document.getElementById('progressText').innerText = `${currentIdx}/${accounts.length}`;
+            };
 
-            for (let account of accounts) {
-                if (!isRunning) break;
-                if (!account.includes(':')) continue;
+            async function worker() {
+                while(currentIdx < accounts.length && isRunning) {
+                    const account = accounts[currentIdx++];
+                    updateUI();
+                    const proxy = proxies.length > 0 ? proxies[Math.floor(Math.random() * proxies.length)] : null;
+                    
+                    const row = document.getElementById('results').insertRow(0);
+                    row.className = "border-b border-slate-800/50 hover:bg-slate-800/20 transition";
+                    row.insertCell(0).className = "p-4 font-mono";
+                    row.cells[0].innerText = account.split(':')[0];
+                    row.insertCell(1).className = "p-4 text-slate-600 truncate max-w-[150px]";
+                    row.cells[1].innerText = proxy || "No Proxy";
+                    const statusCell = row.insertCell(2);
+                    statusCell.className = "p-4 text-center";
+                    statusCell.innerHTML = `<span class="text-blue-500 animate-pulse text-[10px]">CHECKING...</span>`;
 
-                cCount++;
-                document.getElementById('checkingCount').innerText = cCount;
+                    document.getElementById('checkingCount').innerText = parseInt(document.getElementById('checkingCount').innerText) + 1;
 
-                // اختيار بروكسي عشوائي
-                const randomProxy = proxies.length > 0 ? proxies[Math.floor(Math.random() * proxies.length)] : "Direct IP";
+                    try {
+                        const res = await fetch('/api/verify', {
+                            method: 'POST',
+                            headers: {'Content-Type': 'application/json'},
+                            body: JSON.stringify({ account, proxy })
+                        });
+                        const data = await res.json();
 
-                const row = table.insertRow(0);
-                row.className = "bg-slate-800/50 transition-all";
-                row.insertCell(0).className = "p-4 font-mono text-xs";
-                row.cells[0].innerText = account.split(':')[0];
-                
-                row.insertCell(1).className = "p-4 text-xs text-slate-500";
-                row.cells[1].innerText = randomProxy;
-
-                const statusCell = row.insertCell(2);
-                statusCell.className = "p-4 text-center font-bold";
-                statusCell.innerHTML = '<span class="text-blue-400 animate-pulse">Checking...</span>';
-
-                try {
-                    const response = await fetch('/api/verify', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ account: account.trim(), proxy: randomProxy })
-                    });
-                    const data = await response.json();
-
-                    if (data.status === 'SUCCESS') {
-                        statusCell.innerHTML = '<span class="bg-emerald-500/20 text-emerald-400 px-3 py-1 rounded-lg border border-emerald-500/20">LIVE</span>';
-                        successList.push(account);
-                        sCount++;
-                        document.getElementById('successCount').innerText = sCount;
-                    } else {
-                        statusCell.innerHTML = '<span class="bg-red-500/20 text-red-400 px-3 py-1 rounded-lg border border-red-500/20">DIE</span>';
-                        failedList.push(account);
-                        fCount++;
-                        document.getElementById('failCount').innerText = fCount;
+                        if(data.status === 'SUCCESS') {
+                            statusCell.innerHTML = `<span class="bg-green-500/10 text-green-500 border border-green-500/20 px-3 py-1 rounded-lg text-[10px] font-bold">LIVE</span>`;
+                            successCount++;
+                            successList.push(account);
+                            document.getElementById('successCount').innerText = successCount;
+                        } else {
+                            statusCell.innerHTML = `<span class="bg-red-500/10 text-red-500 border border-red-500/20 px-3 py-1 rounded-lg text-[10px] font-bold">DIE</span>`;
+                            failCount++;
+                            document.getElementById('failCount').innerText = failCount;
+                        }
+                    } catch (e) {
+                        statusCell.innerHTML = `<span class="text-slate-700">ERR</span>`;
+                        failCount++;
+                        document.getElementById('failCount').innerText = failCount;
                     }
-                } catch (error) {
-                    statusCell.innerHTML = '<span class="text-slate-600">ERROR</span>';
+                    
+                    document.getElementById('checkingCount').innerText = Math.max(0, parseInt(document.getElementById('checkingCount').innerText) - 1);
                 }
-                
-                cCount--;
-                document.getElementById('checkingCount').innerText = cCount;
             }
 
-            btn.disabled = false;
-            btn.innerHTML = '<i class="fas fa-bolt ml-2"></i> تشغيل النظام';
+            // إطلاق الخيوط (Threads)
+            const workers = Array(threadsCount).fill(null).map(() => worker());
+            await Promise.all(workers);
+
             isRunning = false;
+            document.getElementById('startBtn').disabled = false;
+            alert("اكتمل فحص القائمة!");
         }
 
         function downloadResults(type) {
-            const data = type === 'success' ? successList : failedList;
-            if (data.length === 0) return alert("لا توجد بيانات للتحميل");
-            const blob = new Blob([data.join('\n')], { type: 'text/plain' });
-            const url = window.URL.createObjectURL(blob);
+            if(successList.length === 0) return alert("لا توجد نتائج ناجحة!");
+            const blob = new Blob([successList.join('\n')], {type: 'text/plain'});
             const a = document.createElement('a');
-            a.href = url;
-            a.download = `${type}_accounts.txt`;
+            a.href = URL.createObjectURL(blob);
+            a.download = `live_accounts_${new Date().getTime()}.txt`;
             a.click();
         }
     </script>
