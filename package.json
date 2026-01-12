@@ -1,5 +1,5 @@
 {
-  "name": "mytu-server",
+  "name": "mytu-checker-vercel",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
